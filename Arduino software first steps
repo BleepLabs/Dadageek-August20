@@ -1,0 +1,96 @@
+<!-- Copy and paste the converted output. -->
+
+<!-----
+NEW: Check the "Suppress top comment" option to remove this info from the output.
+
+Conversion time: 4.261 seconds.
+
+
+Using this Markdown file:
+
+1. Paste this output into your source file.
+2. See the notes and action items below regarding this conversion run.
+3. Check the rendered output (headings, lists, code blocks, tables) for proper
+   formatting and use a linkchecker before you publish this page.
+
+Conversion notes:
+
+* Docs to Markdown version 1.0β29
+* Tue Aug 04 2020 12:28:57 GMT-0700 (PDT)
+* Source doc: Arduino software first steps 
+* This document has images: check for >>>>>  gd2md-html alert:  inline image link in generated source and store images to your server. NOTE: Images in exported zip file from Google Docs may not appear in  the same order as they do in your doc. Please check the images!
+
+----->
+
+
+<p style="color: red; font-weight: bold">>>>>>  gd2md-html alert:  ERRORs: 0; WARNINGs: 0; ALERTS: 4.</p>
+<ul style="color: red; font-weight: bold"><li>See top comment block for details on ERRORs and WARNINGs. <li>In the converted Markdown or HTML, search for inline alerts that start with >>>>>  gd2md-html alert:  for specific instances that need correction.</ul>
+
+<p style="color: red; font-weight: bold">Links to alert messages:</p><a href="#gdcalert1">alert1</a>
+<a href="#gdcalert2">alert2</a>
+<a href="#gdcalert3">alert3</a>
+<a href="#gdcalert4">alert4</a>
+
+<p style="color: red; font-weight: bold">>>>>> PLEASE check and correct alert issues and delete this message and the inline alerts.<hr></p>
+
+
+Here’s how to get everything up and running so you can upload code to your Teensy:
+
+
+
+1. Download and install the[ Arduino IDE](https://www.arduino.cc/en/Main/Software) (not the web editor) and[ teensyduino](https://www.pjrc.com/teensy/td_download.html). \
+Don’t use the win 10 app store version, just download the installer. 
+2. Install the arduino IDE first, then teensyduino.
+3. Download this zip file of all the code we'll be using in the first class and unzip it somewhere convenient. 
+4. Open up Arduino. Go to Files > examples > 01.basics > Blink
+5. Plug your teensy up to your computer with the USB cable. The device has a tiny led in the top right corner that will be blinking faintly. Your computer might also install some things which is fine. \
+This is the Teensy 3.2 (Yours look a little different with the tall black sides but it’s the same). For now only hook it up. You don’t need anything else for these tests.  \
+
+
+<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image1.jpg). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image1.jpg "image_tooltip")
+ \
+
+6. In arduino go to the tools menu. Under Board select “Teesny 3.2 / 3.1” \
+Under port select whichever one says “Teensy 3.2” under “Teensy ports”. It will show up differently on different systems.  \
+ \
+PC:
+
+    
+
+<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image2.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image2.png "image_tooltip")
+ \
+ \
+OSX: \
+
+
+<p id="gdcalert3" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image3.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert4">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image3.png "image_tooltip")
+
+
+
+     \
+
+
+7. Go to sketch > Upload. The Arduino IDE will do some work then the Teensyduio window will pop up. It should automatically upload the code. If Arduino says this didn’t happen, press the small white button on the teensy. 
+
+    
+
+<p id="gdcalert4" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image4.jpg). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert5">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image4.jpg "image_tooltip")
+
+
+8. The LED on the teensy should be blinking much brighter now. Now lets get some of the code you downloaded onto the Tessny.  \
+In that zip you got from the [class folder](https://drive.google.com/open?id=1ZmY5dxboq-nV-116lR2aDetTndwpMOzo), open up “Class_1_-_0_-_short_blink.ino” and upload it just like before. The LED should be making short, dim blinks again.  \
+ \
+Now you’re ready to learn how to use all this to make your own weird music/noise/art/??? Device!  \
+ \
