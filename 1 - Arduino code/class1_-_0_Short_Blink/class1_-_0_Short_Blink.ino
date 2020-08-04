@@ -22,6 +22,8 @@ void loop() {
     latch[0] = 1;
     prev[2] = cu;
     digitalWrite(13, 1);
+    Serial.print("Howdy! ");
+    Serial.println(cm);
 
   }
 
