@@ -1,2 +1,2 @@
 # Dadageek-August20
-Making Synths with Arduino clascc
+Making Synths with Arduino classs
