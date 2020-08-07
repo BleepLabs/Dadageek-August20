@@ -1,16 +1,16 @@
-int led1_pin =  10;                // The pin for LED1
-int led1_state = LOW;             // The state of LED1
+int led1_pin =  10;  // The pin for LED1
+int led1_state = 0;  // The state of LED1
 
-int led2_pin =  9;                // The LED2 pin
-int led2_state = 0;             // The LED2 state LOW and 0 are synonomous
+int led2_pin =  9;  // The LED2 pin
+int led2_state = 0;  
 
 unsigned long  previous_time1 = 0;  // will store the last time LED1 was updated
 unsigned long  previous_time2 = 0;  // will store the last time LED2 was updated
 
 unsigned long current_time;
 
-unsigned long interval1 = 50;              //the interval that LED1 will change
-unsigned long interval2 = 50;              //the interval that LED2 will change
+unsigned long interval1 = 50;  //the interval that LED1 will change
+unsigned long interval2 = 50;  //the interval that LED2 will change
 
 int button_pin; //pin one side of the button is connected to
 int button_state; //where we will store if the reading on the pin is high or low.
@@ -39,7 +39,9 @@ void loop()
   interval1 = pot1_value / 2;
   interval2 = pot1_value / 5;
 
-  pot2_value = analogRead(A1) / 4; //this value is 0-1024 but analogwrite is 0-255 so we divide by 4. We'll talk about these funny numbers later
+  //The analog read value is 0-1024 but analogWrite is 0-255 so we divide by 4. 
+  //  See the class 1 notes for more info on bits and bytes
+  pot2_value = analogRead(A1) / 4; 
 
 
   if (current_time - previous_time1 > interval1) {
@@ -51,8 +53,10 @@ void loop()
     else {
       led1_state = LOW;
     }
-    analogWrite(led1_pin, led1_state*pot2_value); //since the state is 1 or 0 it's off half the time, on at our new pot reading the other half
-    //Only pins marked "PWM" can do analogWrite.
+    //Since the state is 1 or 0 it's off half the time, on at our new pot reading the other half
+    // Only pins marked "PWM" can do analogWrite.
+    analogWrite(led1_pin, led1_state*pot2_value); 
+
   }
 
 

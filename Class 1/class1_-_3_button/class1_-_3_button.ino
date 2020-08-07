@@ -1,16 +1,16 @@
-int led1_pin =  10;                // The pin for LED1
-int led1_state = LOW;             // The state of LED1
+int led1_pin =  10;  // The pin for LED1
+int led1_state = LOW;  // The state of LED1
 
-int led2_pin =  9;                // The LED2 pin
-int led2_state = 0;             // The LED2 state LOW and 0 are synonomous
+int led2_pin =  9;  // The LED2 pin
+int led2_state = 0;  // The LED2 state LOW and 0 are synonymous
 
 unsigned long  previous_time1 = 0;  // will store the last time LED1 was updated
 unsigned long  previous_time2 = 0;  // will store the last time LED2 was updated
 
-unsigned long current_time;
+unsigned long current_time; 
 
-unsigned long interval1 = 50;              //the interval that LED1 will change
-unsigned long interval2 = 50;              //the interval that LED2 will change
+unsigned long interval1 = 50; //the interval that LED1 will change
+unsigned long interval2 = 50; //the interval that LED2 will change
 
 int button_pin = 0; //the pin one side of the button is connected to. The other side connects to ground.
 int button_state; //where we will store if the reading on the pin is high or low.
@@ -19,7 +19,7 @@ void setup() {
   // set both LED pins as output:
   pinMode(led1_pin, OUTPUT);
   pinMode(led2_pin, OUTPUT);
-  pinMode(button_pin, INPUT_PULLUP); //need to set it up jsut like an ouptu. We'll talkout the pullup thing later
+  pinMode(button_pin, INPUT_PULLUP);  //Ben using a button, always make sure to set the mode to INPUT_PULLUP
 
 }
 
@@ -39,7 +39,7 @@ void loop()
       led1_state = LOW;
     }
     if (button_state == 0) { // if the button is pressed
-      digitalWrite(led1_pin, led1_state); //do the same thign as before
+      digitalWrite(led1_pin, led1_state); //do the same thing as before
     }
     if (button_state == 1) {
       digitalWrite(led1_pin, 0); //don't light up

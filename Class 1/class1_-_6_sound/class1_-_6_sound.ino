@@ -1,5 +1,5 @@
 int led1_pin =  10;
-int led1_state = LOW;
+int led1_state = 0;
 
 int led2_pin =  9;
 int led2_state = 0;
@@ -7,10 +7,9 @@ int led2_state = 0;
 int audio_pin =  A14;
 int audio_state = 0;
 
-
-unsigned long  previous_time1 = 0;SFSFSDFSDFSFSFS
-unsigned long  previous_time2 = 0;
-unsigned long  previous_time3 = 0;
+unsigned long  previous_time1; //Initializing a variable without saying "=" defaults it to 0
+unsigned long  previous_time2;
+unsigned long  previous_time3;
 
 unsigned long current_time;
 
@@ -28,10 +27,11 @@ int pot2_value;
 int pot2_pin = A1;
 
 void setup() {
-  // set both LED pins as output:
   pinMode(led1_pin, OUTPUT);
   pinMode(led2_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);
+
+  //analog inputs do not need to be setup
 
 }
 
@@ -39,14 +39,14 @@ void loop()
 {
   current_time = millis();
 
-  button_state = digitalRead(button_pin); //if the button is not being pressed it will read HIGH. if it pressed it will read LOW
+  button_state = digitalRead(button_pin); //if the button is not being pressed it will read 1. if it pressed it will read 0
 
-  pot1_value = analogRead(A0); //Read the analog voltage at pin A0. Returns 0 for 0 volts and 1023 for the max voltage (3.3V)
+  pot1_value = analogRead(A0); //Read the analog voltage at pin A0. Returns 0 for 0 Volts and 1023 for the max voltage (3.3V)
   interval1 = pot1_value / 2;
   interval2 = pot1_value / 5;
   interval3 = pot1_value / 10;
 
-  pot2_value = analogRead(A1) / 4; //this value is 0-1024 but analogwrite is 0-255 so we divide by 4. We'll talk about these funny numbers later
+  pot2_value = analogRead(A1) / 4; //this value is 0-1024 but analogWrite is 0-255 so we divide by 4. We'll talk about these funny numbers later
 
 
   if (current_time - previous_time1 > interval1) {
@@ -86,7 +86,7 @@ void loop()
     }
     analogWrite(A14, audio_state * 255);
     //A14 is a 12b analog DAC, not just a digital PWM pin
-    //That doesn't mean everything comeing out of it will sounds great though...
+    //That doesn't mean everything coming out of it will sounds great though...
   }
 
 }
