@@ -7,13 +7,16 @@ int led2_state = 0;  // The LED2 state LOW and 0 are synonymous
 unsigned long  previous_time1 = 0;  // will store the last time LED1 was updated
 unsigned long  previous_time2 = 0;  // will store the last time LED2 was updated
 
-unsigned long current_time; 
+unsigned long current_time;
 
 unsigned long interval1 = 50; //the interval that LED1 will change
 unsigned long interval2 = 50; //the interval that LED2 will change
 
 int button_pin = 0; //the pin one side of the button is connected to. The other side connects to ground.
 int button_state; //where we will store if the reading on the pin is high or low.
+int prev_button_state;
+int button_latch;
+
 
 void setup() {
   // set both LED pins as output:
@@ -27,7 +30,17 @@ void loop()
 {
   current_time = millis();
 
+  prev_button_state = button_state;
   button_state = digitalRead(button_pin); //if the button is not being pressed it will read HIGH. if it pressed it will read LOW
+
+  if (prev_button_state == 1 && button_state == 0) { //if the button was unpressed and now it is pressed do the thing
+    if (button_latch == 0) {
+      button_latch = 1;
+    }
+    else {
+      button_latch = 0;
+    }
+  }
 
   if (current_time - previous_time1 > interval1) {
     previous_time1 = current_time;
@@ -38,10 +51,10 @@ void loop()
     else {
       led1_state = LOW;
     }
-    if (button_state == 0) { // if the button is pressed
+    if (button_latch == 0) { // if the button is pressed
       digitalWrite(led1_pin, led1_state); //do the same thing as before
     }
-    if (button_state == 1) {
+    if (button_latch == 1) {
       digitalWrite(led1_pin, 0); //don't light up
     }
   }
@@ -58,7 +71,7 @@ void loop()
       led2_state = 0;
     }
 
-    if (button_state == 1) { // we can do the opposite for this LED
+    if (button_latch == 1) { // we can do the opposite for this LED
       digitalWrite(led2_pin, led2_state);
     }
     else { //there are only two options so else works too
