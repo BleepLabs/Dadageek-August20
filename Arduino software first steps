@@ -40,10 +40,10 @@ Here’s how to get everything up and running so you can upload code to your Tee
 
 1. Download and install the[ Arduino IDE](https://www.arduino.cc/en/Main/Software) (not the web editor) and[ teensyduino](https://www.pjrc.com/teensy/td_download.html). \
 Don’t use the win 10 app store version, just download the installer. 
-2. Install the arduino IDE first, then teensyduino.
+2. Install the Arduino IDE first, then Teensyduino.
 3. Download this zip file of all the code we'll be using in the first class and unzip it somewhere convenient. 
 4. Open up Arduino. Go to Files > examples > 01.basics > Blink
-5. Plug your teensy up to your computer with the USB cable. The device has a tiny led in the top right corner that will be blinking faintly. Your computer might also install some things which is fine. \
+5. Plug your Teensy up to your computer with the USB cable. The device has a tiny led in the top right corner that will be blinking faintly. Your computer might also install some things which is fine. \
 This is the Teensy 3.2 (Yours look a little different with the tall black sides but it’s the same). For now only hook it up. You don’t need anything else for these tests.  \
 
 
@@ -53,7 +53,7 @@ This is the Teensy 3.2 (Yours look a little different with the tall black sides 
 ![alt_text](images/image1.jpg "image_tooltip")
  \
 
-6. In arduino go to the tools menu. Under Board select “Teesny 3.2 / 3.1” \
+6. In Arduino go to the tools menu. Under Board select “Teensy 3.2 / 3.1” \
 Under port select whichever one says “Teensy 3.2” under “Teensy ports”. It will show up differently on different systems.  \
  \
 PC:
@@ -89,7 +89,7 @@ OSX: \
 ![alt_text](images/image4.jpg "image_tooltip")
 
 
-8. The LED on the teensy should be blinking much brighter now. Now lets get some of the code you downloaded onto the Tessny.  \
+8. The LED on the Teensy should be blinking much brighter now. Now lets get some of the code you downloaded onto the Teensy.  \
 In that zip you got from the [class folder](https://drive.google.com/open?id=1ZmY5dxboq-nV-116lR2aDetTndwpMOzo), open up “Class_1_-_0_-_short_blink.ino” and upload it just like before. The LED should be making short, dim blinks again.  \
  \
 Now you’re ready to learn how to use all this to make your own weird music/noise/art/??? Device!  \
