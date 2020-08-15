@@ -33,13 +33,14 @@ int pot2_pin = A1;
 int pot_reading[8];
 float fold_amount; //floats can hold decimals
 float freq1;
-float freq2;
+float freq2, freq3;
 int out1, out2, out3;// You can define variables like this too. All of them will be integers equal to 0
 uint32_t dds_tune;
 uint32_t dds_rate;
 int lfo_latch[8];
 int lfo[8]; //an array of 8 integers named "lfo"
 float mod[8];
+unsigned long cu, du;
 
 void setup() {
   pinMode(led1_pin, OUTPUT);
@@ -54,18 +55,22 @@ void setup() {
   analogReadAveraging(64); //instead of reading once, do it 64 times and average
 
   //set the rate of our interrupt timer
-  dds_rate = 20; //20 microseconds = 50KHz
+  dds_rate = 30; //20 microseconds = 50KHz
   dds_tune = (1.00 / (dds_rate * .000001)); //used to make the oscillation at the frequency we want them to be
   timer1.begin(osc1, dds_rate);
 }
 
 void osc1() { // code that is run whenever the timer goes off, every 20 micros
-  //these functions are not hidden away like the onces we've used so far. They are at the bottom of this code
+  cu = micros();
 
-  out1 = oscillator(0, freq1 + (mod[1] * 400.0), mod[1], mod[0]); //oscillator(voice select, frequency, amplitude, shape)
+  out1 = oscillator(0, freq1, mod[2], .5); //oscillator(voice select, frequency, amplitude, shape)
+  out2 = oscillator(1, freq3, 1, .5); //oscillator(voice select, frequency, amplitude, shape)
+
+  mod[2] = (out2 + 2048) / 4095.0;
   out3 = fold(out1 * fold_amount); //folds the input instead of clipping it based on the level of the volume pot.
 
   analogWrite(A14, out3 + 2048); // The oscillators produce numbers between -2048 and 2048 but the DAC can't output negatove numbers so we add the offset back in
+  du = micros() - cu;
 }
 
 void loop()
@@ -81,6 +86,9 @@ void loop()
   pot_reading[2] = analogRead(A2);
   freq1 = pot_reading[2] / 4.0; //divide by a float to make sure we get a float out
   freq2 = freq1 * .501; //.5 would be a perfect octave down. Detuning it a tiny bit gives it an interesting sound
+
+  pot_reading[3] = analogRead(A3);
+  freq3 = pot_reading[3] / 2.0;
 
   fold_amount = 1.0;
 
@@ -118,9 +126,9 @@ void loop()
     analogWrite(led2_pin, lfo[1]);
   }
 
-  if (current_time - previous_time[3] > 10) {
+  if (current_time - previous_time[3] > 100) {
     previous_time[3] = current_time;
-    Serial.println(mod[1]);
+    Serial.println(du);
   }
 
 
