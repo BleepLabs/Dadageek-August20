@@ -39,6 +39,7 @@ uint32_t dds_tune;
 uint32_t dds_rate;
 
 int lfo[8]; //an array of 8 integers named "lfo"
+float mod[8];
 
 void setup() {
   pinMode(led1_pin, OUTPUT);
@@ -50,7 +51,7 @@ void setup() {
   // when looking at other examples it's important to know what range these values are
   analogReadResolution(12);
   analogWriteResolution(12);
-  analogReadAveraging(64);
+  analogReadAveraging(64); //instead of reading once, do it 64 times and average
 
   //set the rate of our interrupt timer
   dds_rate = 20; //20 microseconds = 50KHz
@@ -61,7 +62,7 @@ void setup() {
 void osc1() { // code that is run whenever the timer goes off, every 20 micros
   //these functions are not hidden away like the onces we've used so far. They are at the bottom of this code
 
-  out1 = oscillator(0, freq1, 1, .5); //oscillator(voice select, frequency, amplitude, shape)
+  out1 = oscillator(0, freq1, mod[1], .5); //oscillator(voice select, frequency, amplitude, shape)
   out3 = fold(out1 * fold_amount); //folds the input instead of clipping it based on the level of the volume pot.
 
   analogWrite(A14, out3 + 2048); // The oscillators produce numbers between -2048 and 2048 but the DAC can't output negatove numbers so we add the offset back in
@@ -75,7 +76,7 @@ void loop()
   time_interval[0] = pot_reading[0];
 
   pot_reading[1] = analogRead(A1);
-  time_interval[1] = pot_reading[1];
+  time_interval[1] = pot_reading[1] / 100;
 
   pot_reading[2] = analogRead(A2);
   freq1 = pot_reading[2] / 4.0; //divide by a float to make sure we get a float out
@@ -86,23 +87,30 @@ void loop()
   if (current_time - previous_time[1] > time_interval[0]) {
     previous_time[1] = current_time;
 
-    lfo[0] += 50;
+    lfo[0] = lfo[0] + 50;
     if (lfo[0] > 4095) { //4095 is the highest number we can analogWrite since we have it set to 12 bits
       lfo[0] = 0;
     }
-    analogWrite(led1_pin, lfo[0]); 
+    analogWrite(led1_pin, lfo[0]);
   }
 
 
   if (current_time - previous_time[2] > time_interval[1]) {
     previous_time[2] = current_time;
 
-    lfo[1] -= 50;
+    lfo[1] -= 10;
     if (lfo[1] < 0) { //4095 is the highest number we can analogWrite since we have it set to 12 bits
       lfo[1] = 4095;
     }
+    mod[1] = lfo[1] / 4095.0;
     analogWrite(led2_pin, lfo[1]);
   }
+
+  if (current_time - previous_time[3] > 10) {
+    previous_time[3] = current_time;
+    Serial.println(mod[1]);
+  }
+
 
 } //end of loop
 
