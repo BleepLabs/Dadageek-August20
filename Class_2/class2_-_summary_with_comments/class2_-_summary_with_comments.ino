@@ -126,7 +126,9 @@ void loop()
   fold_amount = 1.0;
 
 
-
+ //the rate of this lfo is determined by time_interval[1] and the amoutn that we add or subract from it each time
+ // to have it take large steps make the interval slower and add or subract much larger numbers
+ // here it's going pretty smoothly
   if (cu - previous_time[2] > time_interval[1]) {
     previous_time[2] = cu;
 
