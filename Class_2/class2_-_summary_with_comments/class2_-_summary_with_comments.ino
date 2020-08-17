@@ -9,7 +9,7 @@ int led1_pin =  10;
 int led1_state = LOW;
 int led2_pin =  9;
 int led2_state = 0;
-unsigned long current_time;
+unsigned long current_microsecondsrrent_time;
 
 //Instead of having the variables named like this:
 /*
@@ -42,7 +42,7 @@ uint32_t dds_rate;
 int lfo_latch[8];
 float lfo[8]; //an array of 8 integers named "lfo"
 float mod[8];
-unsigned long cu, du, looptime;
+unsigned long current_microseconds, delta_microseconds, looptime;
 
 
 void setup() {
@@ -64,12 +64,12 @@ void setup() {
 
 void osc1() { // code that is run whenever the timer goes off, every 20 micros
   
-  cu = micros(); // count the time in microseconds
+  current_microseconds = micros(); // count the time in microseconds
   //this can be done in the loop but since it is not looping at a set rate like this timer, the results can be glitchy
 
 
-  if (cu - previous_time[1] > time_interval[0]) { 
-    previous_time[1] = cu;
+  if (current_microseconds - previous_time[1] > time_interval[0]) { 
+    previous_time[1] = current_microseconds;
 
     //this "lfo" is being used as an envelope. A modulator that is stated by something and does not repeat. 
     if (lfo_latch[0] == 0) {
@@ -89,18 +89,20 @@ void osc1() { // code that is run whenever the timer goes off, every 20 micros
   out2 = oscillator(1, 10, 1, .5); //oscillator(voice select, frequency, amplitude, shape)
 
   //take the out which does from -2048 to 2048 and make it 0-1.0, then 0-100.0 
-  // This is then added to .25 to modulate the freqeuncy of the oscillator above.
+  // This is then added to .25 to modulate the frequency of the oscillator above.
   mod[2] = ((out2 + 2048) / 4095.0 )*100.0;
  
   out3 = fold(out1 * fold_amount); //folds the input instead of clipping it based on the level of the volume pot.
 
-  analogWrite(A14, out3 + 2048); // The oscillators produce numbers between -2048 and 2048 but the DAC can't output negatove numbers so we add the offset back in
+  analogWrite(A14, out3 + 2048); // The oscillators produce numbers between -2048 and 2048 but the DAC can't output negative numbers so we add the offset back in
+
+  delta_microseconds= micros() - current_microseconds; //how long did the interrupt timer take to complete. If it's more than dds_rate we'll have issues. 
 }
 
 void loop()
 {
   
-  current_time = millis();
+  current_microsecondsrrent_time = millis();
   prev_button_state = button_state;
   button_state = digitalRead(button_pin);
 
@@ -126,11 +128,11 @@ void loop()
   fold_amount = 1.0;
 
 
- //the rate of this lfo is determined by time_interval[1] and the amoutn that we add or subract from it each time
- // to have it take large steps make the interval slower and add or subract much larger numbers
+ //the rate of this lfo is determined by time_interval[1] and the amount that we add or subtract from it each time
+ // to have it take large steps make the interval slower and add or subtract much larger numbers
  // here it's going pretty smoothly
-  if (cu - previous_time[2] > time_interval[1]) {
-    previous_time[2] = cu;
+  if (current_microseconds - previous_time[2] > time_interval[1]) {
+    previous_time[2] = current_microseconds;
 
     if (lfo_latch[1]==0){
     lfo[1] -= 10;
@@ -151,12 +153,12 @@ void loop()
     analogWrite(led2_pin, lfo[1]);
   }
 
-  if (current_time - previous_time[3] > 5) { // don't print things out faster than every 5 milliseconds, it can cause Arduino to crash
-    previous_time[3] = current_time;
+  if (current_microsecondsrrent_time - previous_time[3] > 5) { // don't print things out faster than every 5 milliseconds, it can cause Arduino to crash
+    previous_time[3] = current_microsecondsrrent_time;
 Serial.println(lfo[1]);
   }
 
-  du = micros() - cu;
+  
 } //end of loop
 
 
@@ -164,7 +166,7 @@ Serial.println(lfo[1]);
 //you can declare "global" variable wherever but the code above it can't see them.
 // So you should always do your declaring at the very top
 int16_t wavelength = 4095;
-uint32_t accumulator[8] = {}; //these are arrays here where are 8 separate variables called accumulator. accumulator[0],accumulator[1],etc
+uint32_t accurrent_microsecondsmulator[8] = {}; //these are arrays here where are 8 separate variables called accurrent_microsecondsmulator. accurrent_microsecondsmulator[0],accurrent_microsecondsmulator[1],etc
 uint32_t increment[8] = {};
 uint32_t waveindex[8] = {};
 
@@ -195,8 +197,8 @@ int16_t oscillator(byte sel, float freq, float amp, float tri_shape) {
 
   increment[sel] = (4294967296.00 * (freq)) / (dds_tune);
 
-  accumulator[sel] += increment[sel];
-  waveindex[sel] = ((accumulator[sel]) >> (32 - 12)); //wavelength is 12 bits
+  accurrent_microsecondsmulator[sel] += increment[sel];
+  waveindex[sel] = ((accurrent_microsecondsmulator[sel]) >> (32 - 12)); //wavelength is 12 bits
 
   if (waveindex[sel] < knee) {
     tout = ((waveindex[sel]) * waveamp) / knee;
