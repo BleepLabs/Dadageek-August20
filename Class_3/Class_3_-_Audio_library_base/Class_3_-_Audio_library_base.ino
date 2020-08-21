@@ -4,7 +4,7 @@
 // "#include" means add another file to our code
 // So far we've been copy and pasting things in but we can just tell our code to look
 // in a library for more functions and data
-// These are all necessary to get audio working but we don't need to do anyhing besides incluse them
+// These are all necessary to get audio working but we don't need to do anything besides include them
 
 #include <Audio.h>
 #include <Wire.h>
@@ -72,8 +72,8 @@ void setup() {
   mixer1.gain(3, 0);
 
   //Then we do the stuff we've done before.
-  analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. Has no effect on the 16bit i/o of the audio adapter
-  analogReadResolution(12); //AnalogReads will retun 0-4095
+  analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. This has no effect on the 16 bit in/out of the audio adapter
+  analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64); 
 
 }
