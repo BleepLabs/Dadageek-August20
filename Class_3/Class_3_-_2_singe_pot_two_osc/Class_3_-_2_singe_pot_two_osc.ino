@@ -12,6 +12,7 @@ AudioOutputI2S           i2s1;           //xy=497.8334732055664,167.166693687438
 AudioConnection          patchCord1(waveform2, 0, mixer1, 1);
 AudioConnection          patchCord2(waveform1, 0, mixer1, 0);
 AudioConnection          patchCord3(mixer1, 0, i2s1, 0);
+AudioConnection          patchCord4(mixer1, 0, i2s1, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=331.66670989990234,76.83334732055664
 // GUItool: end automatically generated code
 
