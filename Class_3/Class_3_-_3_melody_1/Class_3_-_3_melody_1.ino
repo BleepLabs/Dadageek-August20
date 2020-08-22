@@ -23,8 +23,9 @@ unsigned long cm;
 unsigned long prev[8];
 float freq[8];
 int melody1[8] = {15, 22, 12, 14, 22, 15, 17, 30};
-int melody1_pos;
 
+int melody1_pos;
+int melody_rate;
 void setup() {
   //there's a lot we need to do in setup now but some of it is just copy paste.
   // This first group should only be done in setup
@@ -77,24 +78,27 @@ void loop() {
   //We don't have to do anything in the loop since the audio library will jut keep doing what we told it in the setup
 
 
-  if (cm - prev[2] > 250) {
+  if (cm - prev[2] > melody_rate) {
     prev[2] = cm;
     melody1_pos = melody1_pos + 1;
     if (melody1_pos > 7) {
       melody1_pos = 0;
     }
-    freq[0] = chromatic[melody1[melody1_pos]];
+    int piano_loc = melody1[melody1_pos] + freq[2];
+    if (piano_loc > 88) {
+      piano_loc = 88;
+    }
+    freq[0] = chromatic[piano_loc];
     freq[1] = freq[0] * 2.0;
     waveform1.frequency(freq[0]);
     waveform2.frequency(freq[1]);
-
   }
 
   if (cm - prev[1] > 20) {
     prev[1] = cm;
-    //freq[0] = analogRead(A0) / 3.0;
-    //freq[1] = freq[0] * .5;
-
+    melody_rate = analogRead(A0) / 4.0;
+    //freq[2] = ((analogRead(A1) / 4095.0) * 3.5) + .5;
+    freq[2] = (analogRead(A1) / 4095.0) * 88.0 ;
   }
 
 
