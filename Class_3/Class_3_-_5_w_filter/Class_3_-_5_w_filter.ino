@@ -144,6 +144,8 @@ void loop() {
     filter1.frequency(freq[6]);
     freq[7] = (analogRead(A3) / 4095.0) * 10.0 ;
     waveform5.frequency(freq[7]);
+    float amp1 = (analogRead(A6) / 4095.0);
+    waveform5.amplitude(amp1);
 
   }
 
