@@ -38,7 +38,7 @@ void setup() {
   //Output volume. Goes from 0.0 to 1.0 but a fully loud signal will clip over .8 or so.
   // For headphones it's pretty loud at .4
   // There are lots of places we can change the final volume level. This one you set once and leave alone.
-  sgtl5000_1.volume(0.8);
+  sgtl5000_1.volume(0.25);
 
   //This next group can be done anywhere in the code but we want to start things with these
   // values and change some of them in the loop.
@@ -81,7 +81,7 @@ void loop() {
   }
 
 
-  if (cm - prev[0] > 500) {
+  if (cm - prev[0] > 700) {
     prev[0] = cm;
 
     //Here we print out the usage of the audio library
