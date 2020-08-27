@@ -25,6 +25,7 @@ void loop() {
 
   //raw_reading[1] = analogRead(A1);
   raw_reading[1] = touchRead(0) / 4; //touch read can return some large numbers so it might best to divide it before smoothing
+  // see the notes here on making touch sensors https://github.com/BleepLabs/Dadageek-August20/wiki/Using-sensors
   smoothed_reading[1] = smooth(1, 47, raw_reading[1]);
 
   if (follower[1] < smoothed_reading[1]) {
