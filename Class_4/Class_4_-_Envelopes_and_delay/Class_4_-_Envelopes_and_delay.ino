@@ -60,6 +60,7 @@ void setup() {
   AudioMemory(100);
   // start the delay delay(output channel, milliseconds of delay time)
   // every 10 milliseconds needs 3 blocks of memory in AudioMemory
+
   delay1.delay(0, 250); //needs 84 blocks on its own.
 
 
@@ -135,7 +136,7 @@ void loop() {
 
     float wet = (analogRead(A0) / 4095.0);
     float dry = (wet - 1.0) * -1.0;
-    float fb = (analogRead(A1) / 4095.0) * 1.5;
+    float fb = (analogRead(A1) / 4095.0) * 1.2;
     float dt = (analogRead(A2) / 4095.0) * 240.0;
     mixer2.gain(1, fb);
     delay1.delay(0, dt);
