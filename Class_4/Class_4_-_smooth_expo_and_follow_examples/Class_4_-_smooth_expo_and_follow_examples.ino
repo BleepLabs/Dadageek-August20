@@ -1,3 +1,11 @@
+/*
+In this file several examples are shown:
+Smoothing analog readings and converting them to exponetial curves
+Reading touch sensors
+Using envelope followers
+
+*/
+
 int  raw_reading[4];
 int  smoothed_reading[4];
 float follower[4] = {1, 1, 1, 1}; //can't be 0 since we can't multiply by it
