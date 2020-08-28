@@ -1,13 +1,8 @@
 /*
-  Note how the envelope audio objects were renamed
-
+  Using envelops and the delay effect
 */
 
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -15,27 +10,29 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveformModulated waveformMod2;   //xy=313,113.00000286102295
-AudioSynthWaveformModulated waveformMod1;   //xy=330,65.00000190734863
-AudioEffectDelay         delay1;         //xy=477.00000762939453,448.00000762939453
-AudioMixer4              mixer1;         //xy=490.00000381469727,205.00000190734863
-AudioMixer4              mixer2;         //xy=497.00000762939453,307.00000381469727
-AudioEffectEnvelope      envelope[2];      //xy=501.00000762939453,109.00000190734863
-AudioOutputI2S           i2s1;           //xy=691.0000152587891,185.00000190734863
-AudioMixer4              mixer3;         //xy=696.0000114440918,266.00000381469727
-AudioConnection          patchCord1(waveformMod2, envelope[1]);
-AudioConnection          patchCord2(waveformMod1, envelope[0]);
-AudioConnection          patchCord3(delay1, 0, mixer2, 1);
-AudioConnection          patchCord4(mixer1, 0, mixer2, 0);
-AudioConnection          patchCord5(mixer1, 0, mixer3, 0);
-AudioConnection          patchCord6(mixer2, delay1);
-AudioConnection          patchCord7(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord8(envelope[1], 0, mixer1, 1);
-AudioConnection          patchCord9(envelope[0], 0, mixer1, 0);
+AudioSynthWaveformModulated waveformMod1;   //xy=221,225
+AudioSynthWaveformModulated waveformMod2;   //xy=227,272
+AudioEffectEnvelope      envelope1;      //xy=461,222
+AudioEffectEnvelope      envelope2;      //xy=466,271
+AudioEffectDelay         delay1;         //xy=481,590
+AudioMixer4              mixer1;         //xy=494,347
+AudioMixer4              mixer2;         //xy=501,449
+AudioOutputI2S           i2s1;           //xy=695,327
+AudioMixer4              mixer3;         //xy=700,408
+AudioConnection          patchCord1(waveformMod1, envelope1);
+AudioConnection          patchCord2(waveformMod2, envelope2);
+AudioConnection          patchCord3(envelope1, 0, mixer1, 0);
+AudioConnection          patchCord4(envelope2, 0, mixer1, 1);
+AudioConnection          patchCord5(delay1, 0, mixer2, 1);
+AudioConnection          patchCord6(mixer1, 0, mixer2, 0);
+AudioConnection          patchCord7(mixer1, 0, mixer3, 0);
+AudioConnection          patchCord8(mixer2, delay1);
+AudioConnection          patchCord9(mixer2, 0, mixer3, 1);
 AudioConnection          patchCord10(mixer3, 0, i2s1, 0);
 AudioConnection          patchCord11(mixer3, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=287.00000762939453,249.00000381469727
+AudioControlSGTL5000     sgtl5000_1;     //xy=255,422
 // GUItool: end automatically generated code
+
 
 
 //You can edit the connections by hand but it's easier to do it in the audio library for now.
@@ -44,9 +41,13 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=287.00000762939453,249.00000381469
 //Then we have our variable declarations like before
 unsigned long cm;
 unsigned long prev[8];
-int button_pin[2] = {10, 12}; //lets put the button pins in an array
-int button_read[2];
-int prev_button_read[2];
+#define num_of_buttons 2
+int button_pin[num_of_buttons] = {10, 12}; //lets put the button pins in an array
+int button_read[num_of_buttons];
+int prev_button_read[num_of_buttons];
+int note_gate[num_of_buttons];
+float wet_level, dry_level, fb_level, delay_time;
+
 
 void setup() {
 
@@ -58,11 +59,10 @@ void setup() {
   // On our Teensy 3.2 we can go up to about 200 but that won't leave any RAM for anyone else.
   // It's usually the delay and reverb that hog it.
   AudioMemory(100);
+
   // start the delay delay(output channel, milliseconds of delay time)
   // every 10 milliseconds needs 3 blocks of memory in AudioMemory
-
   delay1.delay(0, 250); //needs 84 blocks on its own.
-
 
   sgtl5000_1.enable(); //Turn the adapter board on
   sgtl5000_1.inputSelect(AUDIO_INPUT_LINEIN); //Tell it what input we want to use. Not necessary yet but good to have
@@ -84,21 +84,18 @@ void setup() {
 
   //The mixer has four inputs we can change the volume of
   // gain.(channel from 0 to 3, gain from 0.0 to a large number)
-  // A gain of 1 means the output is the same as the input.
-  // .5 would be half volume and 2 would be double
-  // Since we have two oscillators coming in that are already "1" We should take them down by half so we don't clip.
-  // If you go over "1" The top or bottom of the wave is just slammed against a wall
-  mixer1.gain(0, .5);
+
+  mixer1.gain(0, .5); //combine both oscillators
   mixer1.gain(1, .5);
   mixer1.gain(2, 0);
   mixer1.gain(3, 0);
 
-  mixer2.gain(0, .75);
+  mixer2.gain(0, .75); //delay mixer
   mixer2.gain(1, 0);
   mixer2.gain(2, 0);
   mixer2.gain(3, 0);
 
-  mixer2.gain(0, .5);
+  mixer2.gain(0, .5); //wet/dry mixer
   mixer2.gain(1, .5);
   mixer2.gain(2, 0);
   mixer2.gain(3, 0);
@@ -108,25 +105,34 @@ void setup() {
   analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64);
 
-  envelope[0].release(1000); //how long will it take for the notes to fade out
-  envelope[1].release(100);
+  envelope1.release(1000); //how long will it take for the notes to fade out
+  envelope2.release(100);
 
 }
 
 void loop() {
   cm = millis();
 
-  //This one "for" upades both the buttons.
+  //This one "for" updates both the buttons.
   // If we had more buttons all we'd need to do is change j < 2 and the array sizes
+  // it's best to do button reads in the loop outside of a timing "if"
   for (int j = 0; j < 2; j++) {
     prev_button_read[j] = button_read[j];
     button_read[j] = digitalRead(button_pin[j]);
-    if (prev_button_read[j] == 1 &&  button_read[j] == 0) {
-      envelope[j].noteOn();
-    }
-    if (prev_button_read[j] == 0 &&  button_read[j] == 1) {
-      envelope[j].noteOff();
-    }
+  }
+
+  if (prev_button_read[0] == 1 &&  button_read[0] == 0) {
+    envelope1.noteOn();
+  }
+  if (prev_button_read[0] == 0 &&  button_read[0] == 1) {
+    envelope1.noteOff();
+  }
+
+  if (prev_button_read[1] == 1 &&  button_read[1] == 0) {
+    envelope2.noteOn();
+  }
+  if (prev_button_read[1] == 0 &&  button_read[1] == 1) {
+    envelope2.noteOff();
   }
 
 
@@ -134,14 +140,14 @@ void loop() {
   if (cm - prev[0] > 5) {
     prev[0] = cm;
 
-    float wet = (analogRead(A0) / 4095.0);
-    float dry = (wet - 1.0) * -1.0;
-    float fb = (analogRead(A1) / 4095.0) * 1.2;
-    float dt = (analogRead(A2) / 4095.0) * 240.0;
-    mixer2.gain(1, fb);
-    delay1.delay(0, dt);
-    mixer3.gain(0, dry);
-    mixer3.gain(1, wet);
+    wet_level = (analogRead(A0) / 4095.0);
+    dry_level = (wet_level - 1.0) * -1.0;
+    fb_level = (analogRead(A1) / 4095.0) * 1.2;
+    delay_time = (analogRead(A2) / 4095.0) * 240.0;
+    mixer2.gain(1, fb_level);
+    delay1.delay(0, delay_time);
+    mixer3.gain(0, dry_level);
+    mixer3.gain(1, wet_level);
   }
 
   if (cm - prev[1] > 100) {
