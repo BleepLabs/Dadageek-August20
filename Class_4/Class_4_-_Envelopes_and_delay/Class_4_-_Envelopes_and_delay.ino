@@ -10,15 +10,16 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveformModulated waveformMod1;   //xy=221,225
-AudioSynthWaveformModulated waveformMod2;   //xy=227,272
-AudioEffectEnvelope      envelope1;      //xy=461,222
-AudioEffectEnvelope      envelope2;      //xy=466,271
-AudioEffectDelay         delay1;         //xy=481,590
-AudioMixer4              mixer1;         //xy=494,347
-AudioMixer4              mixer2;         //xy=501,449
-AudioOutputI2S           i2s1;           //xy=695,327
-AudioMixer4              mixer3;         //xy=700,408
+AudioSynthWaveformModulated waveformMod1;   //xy=177,232
+AudioSynthWaveformModulated waveformMod2;   //xy=183,279
+AudioEffectEnvelope      envelope1;      //xy=417,229
+AudioEffectEnvelope      envelope2;      //xy=422,278
+AudioEffectDelay         delay1;         //xy=437,597
+AudioMixer4              mixer1;         //xy=450,354
+AudioMixer4              mixer2;         //xy=457,456
+AudioMixer4              mixer3;         //xy=646.0000038146973,423.99997901916504
+AudioMixer4              mixer4;         //xy=647.0056762695312,321.0056743621826
+AudioOutputI2S           i2s1;           //xy=650.9999809265137,224.99995517730713
 AudioConnection          patchCord1(waveformMod1, envelope1);
 AudioConnection          patchCord2(waveformMod2, envelope2);
 AudioConnection          patchCord3(envelope1, 0, mixer1, 0);
@@ -28,10 +29,12 @@ AudioConnection          patchCord6(mixer1, 0, mixer2, 0);
 AudioConnection          patchCord7(mixer1, 0, mixer3, 0);
 AudioConnection          patchCord8(mixer2, delay1);
 AudioConnection          patchCord9(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord10(mixer3, 0, i2s1, 0);
-AudioConnection          patchCord11(mixer3, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=255,422
+AudioConnection          patchCord10(mixer3, 0, mixer4, 0);
+AudioConnection          patchCord11(mixer4, 0, i2s1, 0);
+AudioConnection          patchCord12(mixer4, 0, i2s1, 1);
+AudioControlSGTL5000     sgtl5000_1;     //xy=211,429
 // GUItool: end automatically generated code
+
 
 
 
@@ -42,7 +45,7 @@ unsigned long prev[8];
 int button_pin[num_of_buttons] = {10, 12}; //lets put the button pins in an array
 int button_read[num_of_buttons];
 int prev_button_read[num_of_buttons];
-float wet_level, dry_level, fb_level, delay_time;
+float wet_level, dry_level, fb_level, delay_time, vol;
 
 
 void setup() {
@@ -93,11 +96,17 @@ void setup() {
   mixer2.gain(2, 0);
   mixer2.gain(3, 0);
 
-  //wet / dry output mixer
-  mixer2.gain(0, .5); //dry
-  mixer2.gain(1, .5); //wet
-  mixer2.gain(2, 0);
-  mixer2.gain(3, 0);
+  //wet / dry  mixer
+  mixer3.gain(0, .5); //dry
+  mixer3.gain(1, .5); //wet
+  mixer3.gain(2, 0);
+  mixer3.gain(3, 0);
+  //final output level
+  mixer4.gain(0, 0);
+  mixer4.gain(1, 0);
+  mixer4.gain(2, 0);
+  mixer4.gain(3, 0);
+
 
   //Then we do the stuff we've done before.
   analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. This has no effect on the 16 bit in/out of the audio adapter
@@ -120,9 +129,9 @@ void loop() {
     button_read[j] = digitalRead(button_pin[j]);
   }
 
-  //we could do some fancy this to simplify this and include it in the "for" above 
+  //we could do some fancy this to simplify this and include it in the "for" above
   // but lets keep it simple for now
-  if (prev_button_read[0] == 1 &&  button_read[0] == 0) { 
+  if (prev_button_read[0] == 1 &&  button_read[0] == 0) {
     envelope1.noteOn(); //the note on is a single event. Need to only do it one, not continuously
   }
   if (prev_button_read[0] == 0 &&  button_read[0] == 1) {
@@ -146,12 +155,15 @@ void loop() {
     mixer3.gain(0, dry_level);
     mixer3.gain(1, wet_level);
 
-    fb_level = (analogRead(A1) / 4095.0) * 1.2; 
+    fb_level = (analogRead(A1) / 4095.0) * 1.2;
     mixer2.gain(1, fb_level);
 
     delay_time = (analogRead(A2) / 4095.0) * 240.0;
     delay1.delay(0, delay_time);
-    
+
+    vol = (analogRead(A3) / 4095.0);
+    mixer4.gain(0, vol);
+
   }
 
 
