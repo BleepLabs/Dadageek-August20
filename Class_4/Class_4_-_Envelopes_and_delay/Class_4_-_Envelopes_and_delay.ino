@@ -1,5 +1,5 @@
 /*
-  Using envelops and the delay effect
+  Using envelopes and the delay effect
 */
 
 
@@ -35,9 +35,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=255,422
 
 
 
-//You can edit the connections by hand but it's easier to do it in the audio library for now.
-
-
 //Then we have our variable declarations like before
 unsigned long cm;
 unsigned long prev[8];
@@ -45,7 +42,6 @@ unsigned long prev[8];
 int button_pin[num_of_buttons] = {10, 12}; //lets put the button pins in an array
 int button_read[num_of_buttons];
 int prev_button_read[num_of_buttons];
-int note_gate[num_of_buttons];
 float wet_level, dry_level, fb_level, delay_time;
 
 
@@ -60,7 +56,8 @@ void setup() {
   // It's usually the delay and reverb that hog it.
   AudioMemory(100);
 
-  // start the delay delay(output channel, milliseconds of delay time)
+  //Start the delay effect
+  // delay(output channel, milliseconds of delay time)
   // every 10 milliseconds needs 3 blocks of memory in AudioMemory
   delay1.delay(0, 250); //needs 84 blocks on its own.
 
@@ -71,16 +68,16 @@ void setup() {
   //Output volume. Goes from 0.0 to 1.0 but a fully loud signal will clip over .8 or so.
   // For headphones it's pretty loud at .4
   // There are lots of places we can change the final volume level. This one you set once and leave alone.
-  sgtl5000_1.volume(0.8);
+  sgtl5000_1.volume(0.25);
+
 
   //This next group can be done anywhere in the code but we want to start things with these
   // values and change some of them in the loop.
 
-  //Notice we start by writing the object we want, then a period, then the function
   // begin(volume from 0.0-1.0 , frequency , shape of oscillator)
-  // See the tool for more info https://www.pjrc.com/teensy/gui/?info=AudioSynthWaveform
   waveformMod1.begin(1, 220.0, WAVEFORM_SINE);
   waveformMod2.begin(1, 440.0, WAVEFORM_SINE);
+
 
   //The mixer has four inputs we can change the volume of
   // gain.(channel from 0 to 3, gain from 0.0 to a large number)
@@ -90,13 +87,15 @@ void setup() {
   mixer1.gain(2, 0);
   mixer1.gain(3, 0);
 
-  mixer2.gain(0, .75); //delay mixer
-  mixer2.gain(1, 0);
+  //delay mixer
+  mixer2.gain(0, .75); //input
+  mixer2.gain(1, 0); //feedback
   mixer2.gain(2, 0);
   mixer2.gain(3, 0);
 
-  mixer2.gain(0, .5); //wet/dry mixer
-  mixer2.gain(1, .5);
+  //wet / dry output mixer
+  mixer2.gain(0, .5); //dry
+  mixer2.gain(1, .5); //wet
   mixer2.gain(2, 0);
   mixer2.gain(3, 0);
 
@@ -105,7 +104,7 @@ void setup() {
   analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64);
 
-  envelope1.release(1000); //how long will it take for the notes to fade out
+  envelope1.release(1000); //how long will it take for the notes to fade out in milliseconds
   envelope2.release(100);
 
 }
@@ -121,11 +120,13 @@ void loop() {
     button_read[j] = digitalRead(button_pin[j]);
   }
 
-  if (prev_button_read[0] == 1 &&  button_read[0] == 0) {
-    envelope1.noteOn();
+  //we could do some fancy this to simplify this and include it in the "for" above 
+  // but lets keep it simple for now
+  if (prev_button_read[0] == 1 &&  button_read[0] == 0) { 
+    envelope1.noteOn(); //the note on is a single event. Need to only do it one, not continuously
   }
   if (prev_button_read[0] == 0 &&  button_read[0] == 1) {
-    envelope1.noteOff();
+    envelope1.noteOff(); //same for note off
   }
 
   if (prev_button_read[1] == 1 &&  button_read[1] == 0) {
@@ -140,17 +141,21 @@ void loop() {
   if (cm - prev[0] > 5) {
     prev[0] = cm;
 
-    wet_level = (analogRead(A0) / 4095.0);
-    dry_level = (wet_level - 1.0) * -1.0;
-    fb_level = (analogRead(A1) / 4095.0) * 1.2;
-    delay_time = (analogRead(A2) / 4095.0) * 240.0;
-    mixer2.gain(1, fb_level);
-    delay1.delay(0, delay_time);
+    wet_level = (analogRead(A0) / 4095.0); //0.0 - 1.0
+    dry_level = (wet_level - 1.0) * -1.0; //1.0-0.0
     mixer3.gain(0, dry_level);
     mixer3.gain(1, wet_level);
+
+    fb_level = (analogRead(A1) / 4095.0) * 1.2; 
+    mixer2.gain(1, fb_level);
+
+    delay_time = (analogRead(A2) / 4095.0) * 240.0;
+    delay1.delay(0, delay_time);
+    
   }
 
-  if (cm - prev[1] > 100) {
+
+  if (cm - prev[1] > 500) {
     prev[1] = cm;
     Serial.print("processor: ");
     Serial.print(AudioProcessorUsageMax());

@@ -1,8 +1,8 @@
 /*
-In this file several examples are shown:
-Smoothing analog readings and converting them to exponetial curves
-Reading touch sensors
-Using envelope followers
+  In this file several examples are shown:
+  Smoothing analog readings and converting them to exponetial curves
+  Reading touch sensors
+  Using envelope followers
 
 */
 
@@ -21,15 +21,16 @@ void setup() {
 void loop() {
   current_time = millis();
 
-  //read and smooth needs to happed fast so do it in the loop, not in a timing "if"
+  //smooth needs to happed fast so read and smooth in the bottom of the loop, not in a timing "if"
   raw_reading[0] = analogRead(A0);
   smoothed_reading[0] = smooth(0, 25, raw_reading[0]);
 
-  // ((in^x)/(max val of in^(x-1))
+  // exponential conversion = (in^n) / (max value of in^(n-1))
+
   // a standard logarithmic curve would be to the power of 2 so:
-  expo[0] = pow(smoothed_reading[0], 2) / 4095;
+  expo[0] = pow(smoothed_reading[0], 2) / 4095; //pow(base, exponent)
   // to get a steeper curve you could do:
-  //expo[0] = pow(smoothed_reading[0], 3) / (16769025);
+  //expo[0] = pow(smoothed_reading[0], 3) / (pow(4095, 2));
 
   //raw_reading[1] = analogRead(A1);
   raw_reading[1] = touchRead(0) / 4; //touch read can return some large numbers so it might best to divide it before smoothing
@@ -44,29 +45,34 @@ void loop() {
     follower[1] *= fall_rate; //..but slowly fades after the reading has dropped
   }
 
-  //you can't print in the loop though
-  //best viewed in the plotter
+  //printing alwasy needs to be in a timing if. Don't go faster than 5 milliseconds
   if (current_time - prev[0] > 40) {
     prev[0] = current_time;
+    
+    byte print_sel = 0; //which info to print? 
 
-    Serial.print(" raw:");
-    Serial.print(raw_reading[1]);
-    Serial.print(" sm:");
-    Serial.print(smoothed_reading[1]);
-    Serial.print(" fol:");
-    Serial.print(follower[1]);
-    Serial.println();
-    /*
+    if (print_sel == 0) { //touch
+      Serial.print(" raw:");
+      Serial.print(raw_reading[1]);
+      Serial.print(" sm:");
+      Serial.print(smoothed_reading[1]);
+      Serial.print(" fol:");
+      Serial.print(follower[1]);
+      Serial.println();
+    }
+
+    if (print_sel == 1) { //pot and expo
       Serial.print(" sm:");
       Serial.print(smoothed_reading[0]);
       Serial.print(" exp:");
       Serial.print(expo[0]);
       Serial.println();
-    */
+    }
   }
 
 } //end of loop
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //based on https://playground.arduino.cc/Main/DigitalSmooth/
 // This function continuously samples an input and puts it in an array that is "samples" in length.
