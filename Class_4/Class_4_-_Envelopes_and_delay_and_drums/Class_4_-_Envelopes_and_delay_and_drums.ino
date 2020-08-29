@@ -1,8 +1,3 @@
-/*
-  Using envelopes and the delay effect
-*/
-
-
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -10,33 +5,34 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveformModulated waveformMod1;   //xy=177,232
-AudioSynthWaveformModulated waveformMod2;   //xy=183,279
-AudioEffectEnvelope      envelope1;      //xy=417,229
-AudioEffectEnvelope      envelope2;      //xy=422,278
-AudioEffectDelay         delay1;         //xy=437,597
-AudioMixer4              mixer1;         //xy=450,354
-AudioMixer4              mixer2;         //xy=457,456
-AudioMixer4              mixer3;         //xy=646.0000038146973,423.99997901916504
-AudioMixer4              mixer4;         //xy=647.0056762695312,321.0056743621826
-AudioOutputI2S           i2s1;           //xy=650.9999809265137,224.99995517730713
-AudioConnection          patchCord1(waveformMod1, envelope1);
-AudioConnection          patchCord2(waveformMod2, envelope2);
-AudioConnection          patchCord3(envelope1, 0, mixer1, 0);
-AudioConnection          patchCord4(envelope2, 0, mixer1, 1);
+AudioSynthWaveformDc     dc1;            //xy=123.33806991577148,44.17140197753906
+AudioEffectEnvelope      envelope3;      //xy=190.00472259521484,85.83806610107422
+AudioSynthWaveformModulated waveformMod1;   //xy=247.00470733642578,135.27746391296387
+AudioSynthNoisePink      pink1;          //xy=265.83805084228516,192.27746200561523
+AudioEffectDelay         delay1;         //xy=393.17139053344727,518.2774658203125
+AudioMixer4              mixer1;         //xy=406.17139053344727,275.2774658203125
+AudioEffectEnvelope      envelope2;      //xy=413.8380699157715,193.44412565231323
+AudioMixer4              mixer2;         //xy=413.17139053344727,377.2774658203125
+AudioEffectEnvelope      envelope1;      //xy=423.17139053344727,136.2774658203125
+AudioMixer4              mixer4;         //xy=590.004731496175,208.94413503011066
+AudioMixer4              mixer3;         //xy=612.1713905334473,336.2774658203125
+AudioOutputI2S           i2s1;           //xy=740.5046768188477,193.6108112335205
+AudioConnection          patchCord1(dc1, envelope3);
+AudioConnection          patchCord2(envelope3, 0, waveformMod1, 0);
+AudioConnection          patchCord3(waveformMod1, envelope1);
+AudioConnection          patchCord4(pink1, envelope2);
 AudioConnection          patchCord5(delay1, 0, mixer2, 1);
 AudioConnection          patchCord6(mixer1, 0, mixer2, 0);
 AudioConnection          patchCord7(mixer1, 0, mixer3, 0);
-AudioConnection          patchCord8(mixer2, delay1);
-AudioConnection          patchCord9(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord10(mixer3, 0, mixer4, 0);
-AudioConnection          patchCord11(mixer4, 0, i2s1, 0);
-AudioConnection          patchCord12(mixer4, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=211,429
+AudioConnection          patchCord8(envelope2, 0, mixer1, 1);
+AudioConnection          patchCord9(mixer2, delay1);
+AudioConnection          patchCord10(mixer2, 0, mixer3, 1);
+AudioConnection          patchCord11(envelope1, 0, mixer1, 0);
+AudioConnection          patchCord12(mixer4, 0, i2s1, 0);
+AudioConnection          patchCord13(mixer4, 0, i2s1, 1);
+AudioConnection          patchCord14(mixer3, 0, mixer4, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=203.17139053344727,319.2774658203125
 // GUItool: end automatically generated code
-
-
-
 
 //Then we have our variable declarations like before
 unsigned long cm;
@@ -47,7 +43,7 @@ int button_read[num_of_buttons];
 int prev_button_read[num_of_buttons];
 float wet_level, dry_level, fb_level, delay_time, vol;
 int  smoothed_reading[4];
-
+float freq1;
 void setup() {
 
   pinMode(button_pin[0], INPUT_PULLUP);
@@ -58,7 +54,7 @@ void setup() {
   // On our Teensy 3.2 we can go up to about 200 but that won't leave any RAM for anyone else.
   // It's usually the delay and reverb that hog it.
   AudioMemory(100);
-
+  pink1.amplitude(0);
   //Start the delay effect
   // delay(output channel, milliseconds of delay time)
   // every 10 milliseconds needs 3 blocks of memory in AudioMemory
@@ -78,9 +74,9 @@ void setup() {
   // values and change some of them in the loop.
 
   // begin(volume from 0.0-1.0 , frequency , shape of oscillator)
-  waveformMod1.begin(1, 220.0, WAVEFORM_SINE);
-  waveformMod2.begin(1, 440.0, WAVEFORM_SINE);
-
+  waveformMod1.begin(1, 70.0, WAVEFORM_SINE);
+  // waveformMod2.begin(1, 440.0, WAVEFORM_SINE);
+  dc1.amplitude(1.0);
 
   //The mixer has four inputs we can change the volume of
   // gain.(channel from 0 to 3, gain from 0.0 to a large number)
@@ -113,13 +109,19 @@ void setup() {
   analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64);
 
-  envelope1.attack(1);
-  envelope1.decay(50);
-  envelope1.sustain(.2);
-  envelope1.release(500); //how long will it take for the notes to fade out in milliseconds
+  envelope2.attack(1);
+  envelope2.decay(50);
+  envelope2.sustain(.2);
+  envelope2.release(500); //how long will it take for the notes to fade out in milliseconds
 
-  envelope2.attack(1000);
-  envelope2.release(100);
+  envelope1.attack(0);
+  envelope1.release(100);
+
+
+  envelope3.attack(0);
+  envelope3.decay(50);
+  envelope2.sustain(0);
+
 
 }
 
@@ -138,9 +140,13 @@ void loop() {
   // but lets keep it simple for now
   if (prev_button_read[0] == 1 &&  button_read[0] == 0) {
     envelope1.noteOn(); //the note on is a single event. Need to only do it one, not continuously
+    envelope2.noteOn();
+    envelope3.noteOn();
   }
   if (prev_button_read[0] == 0 &&  button_read[0] == 1) {
     envelope1.noteOff(); //same for note off
+    envelope2.noteOff();
+    envelope3.noteOff();
   }
 
   if (prev_button_read[1] == 1 &&  button_read[1] == 0) {
@@ -169,12 +175,15 @@ void loop() {
 
     vol = (analogRead(A3) / 4095.0);
     mixer4.gain(0, vol);
+
+    freq1 = (analogRead(A6) / 4095.0);
+    waveformMod1.frequency(freq1 * 100.0);
   }
 
 
   if (cm - prev[1] > 10) {
     prev[1] = cm;
-    Serial.println(smoothed_reading[0]);
+    Serial.println(freq1);
     Serial.print("processor: ");
     Serial.print(AudioProcessorUsageMax());
     Serial.print("%    Memory: ");
