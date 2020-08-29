@@ -46,7 +46,7 @@ int button_pin[num_of_buttons] = {10, 12}; //lets put the button pins in an arra
 int button_read[num_of_buttons];
 int prev_button_read[num_of_buttons];
 float wet_level, dry_level, fb_level, delay_time, vol;
-
+int  smoothed_reading[4];
 
 void setup() {
 
@@ -113,7 +113,12 @@ void setup() {
   analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64);
 
-  envelope1.release(1000); //how long will it take for the notes to fade out in milliseconds
+  envelope1.attack(1);
+  envelope1.decay(50);
+  envelope1.sustain(.2);
+  envelope1.release(500); //how long will it take for the notes to fade out in milliseconds
+
+  envelope2.attack(1000);
   envelope2.release(100);
 
 }
@@ -158,8 +163,9 @@ void loop() {
     fb_level = (analogRead(A1) / 4095.0) * 1.2;
     mixer2.gain(1, fb_level);
 
-    delay_time = (analogRead(A2) / 4095.0) * 240.0;
-    delay1.delay(0, delay_time);
+    delay_time = analogRead(A2);
+    smoothed_reading[0] = ((smooth(0, 49, delay_time)) / 4095.0) * 240.0;
+    delay1.delay(0, smoothed_reading[0]);
 
     vol = (analogRead(A3) / 4095.0);
     mixer4.gain(0, vol);
@@ -169,6 +175,7 @@ void loop() {
 
   if (cm - prev[1] > 500) {
     prev[1] = cm;
+    Serial.println(delay_time);
     Serial.print("processor: ");
     Serial.print(AudioProcessorUsageMax());
     Serial.print("%    Memory: ");
@@ -178,4 +185,59 @@ void loop() {
     AudioMemoryUsageMaxReset();
 
   }
+}
+
+
+//based on https://playground.arduino.cc/Main/DigitalSmooth/
+// This function continuously samples an input and puts it in an array that is "samples" in length.
+// This array has a new "raw_in" value added to it each time "smooth" is called and an old value is removed
+// It throws out the top and bottom 15% of readings and averages the rest
+
+#define maxarrays 1 //max number of different variables to smooth
+#define maxsamples 51 //max number of points to sample and 
+//reduce these numbers to save RAM
+
+unsigned int smoothArray[maxarrays][maxsamples];
+
+// sel should be a unique number for each occurrence
+// samples should be an odd number greater that 7. It's the length of the array. The larger the more smooth but less responsive
+// raw_in is the input. positive numbers in and out only.
+
+unsigned int smooth(byte sel, unsigned int samples, unsigned int raw_in) {
+  int j, k, temp, top, bottom;
+  long total;
+  static int i[maxarrays];
+  static int sorted[maxarrays][maxsamples];
+  boolean done;
+
+  i[sel] = (i[sel] + 1) % samples;    // increment counter and roll over if necessary. -  % (modulo operator) rolls over variable
+  smoothArray[sel][i[sel]] = raw_in;                 // input new data into the oldest slot
+
+  for (j = 0; j < samples; j++) { // transfer data array into anther array for sorting and averaging
+    sorted[sel][j] = smoothArray[sel][j];
+  }
+
+  done = 0;                // flag to know when we're done sorting
+  while (done != 1) {      // simple swap sort, sorts numbers from lowest to highest
+    done = 1;
+    for (j = 0; j < (samples - 1); j++) {
+      if (sorted[sel][j] > sorted[sel][j + 1]) {    // numbers are out of order - swap
+        temp = sorted[sel][j + 1];
+        sorted[sel] [j + 1] =  sorted[sel][j] ;
+        sorted[sel] [j] = temp;
+        done = 0;
+      }
+    }
+  }
+
+  // throw out top and bottom 15% of samples - limit to throw out at least one from top and bottom
+  bottom = max(((samples * 15)  / 100), 1);
+  top = min((((samples * 85) / 100) + 1  ), (samples - 1));   // the + 1 is to make up for asymmetry caused by integer rounding
+  k = 0;
+  total = 0;
+  for ( j = bottom; j < top; j++) {
+    total += sorted[sel][j];  // total remaining indices
+    k++;
+  }
+  return total / k;    // divide by number of samples
 }

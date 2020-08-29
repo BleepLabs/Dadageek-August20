@@ -9,7 +9,7 @@
 int  raw_reading[4];
 int  smoothed_reading[4];
 float follower[4] = {1, 1, 1, 1}; //can't be 0 since we can't multiply by it
-float fall_rate = .9995; //very small changes in this number make a big difference
+float fall_rate = .99995; //very small changes in this number make a big difference
 unsigned long current_time, prev[4];
 int expo[4];
 
@@ -28,9 +28,9 @@ void loop() {
   // exponential conversion = (in^n) / (max value of in^(n-1))
 
   // a standard logarithmic curve would be to the power of 2 so:
-  expo[0] = pow(smoothed_reading[0], 2) / 4095; //pow(base, exponent)
+  //expo[0] = pow(smoothed_reading[0], 2) / 4095; //pow(base, exponent)
   // to get a steeper curve you could do:
-  //expo[0] = pow(smoothed_reading[0], 3) / (pow(4095, 2));
+  expo[0] = pow(smoothed_reading[0], 3) / (pow(4095, 2));
 
   //raw_reading[1] = analogRead(A1);
   raw_reading[1] = touchRead(0) / 4; //touch read can return some large numbers so it might best to divide it before smoothing
@@ -48,10 +48,10 @@ void loop() {
   //printing alwasy needs to be in a timing if. Don't go faster than 5 milliseconds
   if (current_time - prev[0] > 40) {
     prev[0] = current_time;
-    
-    byte print_sel = 0; //which info to print? 
 
-    if (print_sel == 0) { //touch
+    byte print_sel = 1; //which info to print?
+
+    if (print_sel == 1) { //touch
       Serial.print(" raw:");
       Serial.print(raw_reading[1]);
       Serial.print(" sm:");
@@ -61,7 +61,9 @@ void loop() {
       Serial.println();
     }
 
-    if (print_sel == 1) { //pot and expo
+    if (print_sel == 0) { //pot and expo
+      Serial.print(" raw:");
+      Serial.print(raw_reading[0]);
       Serial.print(" sm:");
       Serial.print(smoothed_reading[0]);
       Serial.print(" exp:");
