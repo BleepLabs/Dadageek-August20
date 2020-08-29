@@ -54,7 +54,7 @@ void setup() {
   // On our Teensy 3.2 we can go up to about 200 but that won't leave any RAM for anyone else.
   // It's usually the delay and reverb that hog it.
   AudioMemory(100);
-  pink1.amplitude(0);
+  pink1.amplitude(1);
   //Start the delay effect
   // delay(output channel, milliseconds of delay time)
   // every 10 milliseconds needs 3 blocks of memory in AudioMemory
@@ -177,8 +177,7 @@ void loop() {
     mixer4.gain(0, vol);
 
     freq1 = (analogRead(A6));
-    expo[0] = pow(freq1, 2) / 4095;
-    waveformMod1.frequency(freq1 * 100.0);
+    waveformMod1.frequency(freq1 / 100.0);
   }
 
 
