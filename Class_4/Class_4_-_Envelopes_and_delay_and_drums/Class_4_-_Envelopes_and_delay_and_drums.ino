@@ -176,7 +176,8 @@ void loop() {
     vol = (analogRead(A3) / 4095.0);
     mixer4.gain(0, vol);
 
-    freq1 = (analogRead(A6) / 4095.0);
+    freq1 = (analogRead(A6));
+    expo[0] = pow(freq1, 2) / 4095;
     waveformMod1.frequency(freq1 * 100.0);
   }
 

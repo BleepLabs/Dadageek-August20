@@ -28,9 +28,9 @@ void loop() {
   // exponential conversion = (in^n) / (max value of in^(n-1))
 
   // a standard logarithmic curve would be to the power of 2 so:
-  //expo[0] = pow(smoothed_reading[0], 2) / 4095; //pow(base, exponent)
+  expo[0] = pow(smoothed_reading[0], 2) / 4095; //pow(base, exponent)
   // to get a steeper curve you could do:
-  expo[0] = pow(smoothed_reading[0], 3) / (pow(4095, 2));
+  //expo[0] = pow(smoothed_reading[0], 3) / (pow(4095, 2));
 
   //raw_reading[1] = analogRead(A1);
   raw_reading[1] = touchRead(0) / 4; //touch read can return some large numbers so it might best to divide it before smoothing
