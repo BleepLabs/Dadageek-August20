@@ -1,4 +1,4 @@
-//4051 mux example using this diagram
+//4051 mux example using this diagram https://github.com/BleepLabs/Dadageek-August20/wiki/Multiplexing-info
 
 unsigned long cm;
 unsigned long prev[8];
@@ -35,17 +35,17 @@ void loop() {
 
   for (int mux_select = 0; mux_select < 8; mux_select++) {
 
-    //mux_sel is a regualr number but we need the bits insode it to select which pins
+    //mux_sel is a regular number but we need the bits inside it to select which pins
     // are outputting high or low to sell the 4051s which pin to select;
     digitalWrite(ctrl_pin1, bitRead(mux_select, 0));
     digitalWrite(ctrl_pin2, bitRead(mux_select, 1));
     digitalWrite(ctrl_pin3, bitRead(mux_select, 2));
 
     //mux_select is also used to put the reading in the arrays
-    //if youre not using one of these just comment it out
+    //if you're not using one of these just comment it out
 
     //smooth(channel, number of readings to average, input)
-    //smooth needs a differnt cahnnel number for each seperate reading
+    //smooth needs a different channel number for each separate reading
 
     pot_readings1[mux_select] = smooth(mux_select, 31, analogRead(analog_pin1));
     pot_readings2[mux_select] = smooth(mux_select + 8, 31, analogRead(analog_pin2));
@@ -56,7 +56,7 @@ void loop() {
 
   if (cm - prev[0] > 100) {
     prev[0] = cm;
-    //print 8 readings. Cahnge where mux_print starts and stops to see sepcific ones
+    //print 8 readings. Change where mux_print starts and stops to see specific ones
     for (int mux_print = 0; mux_print < 8; mux_print++) {
       Serial.print(mux_print);
       Serial.print("-");
