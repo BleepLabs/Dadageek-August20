@@ -24,8 +24,7 @@ void setup() {
     delay(3000);
   }
   // Create or open the file.
-  //file = SD.open(file_name, FILE_WRITE);
-  file = SD.open(file_name, FILE_READ);
+  file = SD.open(file_name, FILE_WRITE);
   if (!file) {
     Serial.println("open failed");
     delay(3000);
@@ -49,7 +48,7 @@ void loop() {
     //This is all you really need to know
     // just treat it liks an array except the numbers can be 9 digits long,
     // rather than being an int or long.
-    //SDaw(SDloc, newnum); //SD array write(location to put it at, number)
+    SDaw(SDloc, newnum); //SD array write(location to put it at, number)
     int val = SDar(SDloc); //val will be equat to the number at that location
 
 
