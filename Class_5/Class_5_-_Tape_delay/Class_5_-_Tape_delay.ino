@@ -1,4 +1,4 @@
-// using the tape delay effect with an audio input
+// Using the tape delay effect with an audio input
 // More info https://github.com/BleepLabs/Dadageek-August20/wiki/Class-5-~-Audio-input
 
 #include "smooth.h" //smooth is located in a tab at the top instead of in this file. We just have to include it
