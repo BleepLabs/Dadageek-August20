@@ -1,5 +1,11 @@
-// using the granualr effect with an audio input
+// using the tape delay effect with an audio input
 // More info https://github.com/BleepLabs/Dadageek-August20/wiki/Class-5-~-Audio-input
+
+#include "smooth.h" //smooth is located in a tab at the top instead of in this file. We just have to include it
+// if the file to be included is in the same directory as the main .ino, use " ". Above we see <> this is for files in other directories.
+
+#include "effect_tape_delay.h" // this needs to be before the other audio code 
+
 
 #include <Audio.h>
 #include <Wire.h>
@@ -12,7 +18,7 @@ AudioAmplifier           amp1;           //xy=124,393
 AudioInputI2S            i2s2;           //xy=183,309
 AudioSynthWaveformSineModulated sine_fm1;       //xy=207,473
 AudioEffectMultiply      multiply1;      //xy=328,389
-AudioEffectGranular      granular1;      //xy=521,472
+AudioEffectTapeDelay      tapeDelay1;      //xy=521,472
 AudioMixer4              mixer1;         //xy=523,395
 AudioAmplifier           amp2;           //xy=697,466
 AudioOutputI2S           i2s1;           //xy=841,468
@@ -23,23 +29,19 @@ AudioConnection          patchCord4(i2s2, 0, amp1, 0);
 AudioConnection          patchCord5(sine_fm1, 0, multiply1, 1);
 AudioConnection          patchCord6(sine_fm1, 0, mixer1, 1);
 AudioConnection          patchCord7(multiply1, 0, mixer1, 0);
-AudioConnection          patchCord8(granular1, amp2);
-AudioConnection          patchCord9(granular1, 0, mixer1, 3);
-AudioConnection          patchCord10(mixer1, granular1);
+AudioConnection          patchCord8(tapeDelay1, amp2);
+AudioConnection          patchCord9(tapeDelay1, 0, mixer1, 3);
+AudioConnection          patchCord10(mixer1, tapeDelay1);
 AudioConnection          patchCord11(amp2, 0, i2s1, 0);
 AudioConnection          patchCord12(amp2, 0, i2s1, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=510,293
 // GUItool: end automatically generated code
 
 
-#include "smooth.h" //smooth is located in a tab at the top instead of in this file. We just have to include it
-// if the file to be included is in the same directory as the main .ino, use " ". Above we see <> this is for files in other directories.
-
-#include "effect_tape_delay.h" 
 
 //Some effects require memory to be allocated outside of the AudioMemory() function/
-#define GRANULAR_MEMORY_SIZE 10000  // At 44.1 kHz sample rate every 1000 integers is 22.6 miliseconds
-int16_t granularMemory[GRANULAR_MEMORY_SIZE];
+#define DELAY_SIZE 10000  // At 44.1 kHz sample rate every 1000 integers is 22.6 miliseconds
+int16_t tape_delay_bank[DELAY_SIZE];
 
 int pot[5];
 unsigned long cm;
@@ -76,8 +78,12 @@ void setup() {
   // For headphones it's pretty loud at .4
   sgtl5000_1.volume(0.25);
 
-  //begin(bank to use, max size of bank)
-  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
+  //begin(bank to use, max size of bank, length of delay,rate reduction,interpolation)
+  // delay time is 0 for longest delay, DELAY_SIZE-1 for shortest
+  // redux is a way to make the delay longer while sacrificing sample rate. takes whole nuimbers
+  // 0 is no reduction. 1 doubles the lenght while halving the sample rate, so 22kHz, 2 is 11kHz
+  // interpolation takes whole numbers and is how fast the tape will get to the desired loation. 0 is as fast as possible, 1 is a little slower
+  tapeDelay1.begin(tape_delay_bank, DELAY_SIZE, 0, 1, 4);
 
   // begin(volume from 0.0-1.0 , frequency , shape of oscillator)
   // See the tool for more info https://www.pjrc.com/teensy/gui/?info=AudioSynthWaveform
@@ -88,7 +94,7 @@ void setup() {
   // gain.(channel from 0 to 3, gain from 0.0 to a large number)
   mixer1.gain(0, 0);
   mixer1.gain(1, 0);
-  mixer1.gain(2, 1);
+  mixer1.gain(2, .7);
   mixer1.gain(3, 0);
 
   //Then we do the stuff we've done before.
@@ -107,10 +113,8 @@ void loop() {
   button2 = digitalRead(button2_pin);
 
   if (prev_button1 == 1 && button1 == 0) {
-    granular1.beginPitchShift(100);
   }
   if (prev_button1 == 0 && button1 == 1) {
-    granular1.stop();
   }
 
 
@@ -125,8 +129,8 @@ void loop() {
     sine_fm1.frequency(pot[0] / 4.0);
     //amp2.gain(pot[2] / 4095.0); //output volume
     //amp1.gain(pot[1] / 1000.0); //amount the incoming audio is FMing the oscillator
-    granular1.setSpeed((pot[2] / 4095.0) * 4.0);
-
+    mixer1.gain(3, pot[2] / 4095.0); // feedback
+    tapeDelay1.length((pot[1] / 4095.0) * DELAY_SIZE);
   }
 
   if (cm - prev[0] > 500) {
