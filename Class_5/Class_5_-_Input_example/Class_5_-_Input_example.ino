@@ -6,12 +6,6 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-
 // GUItool: begin automatically generated code
 AudioAmplifier           amp1;           //xy=124,393
 AudioInputI2S            i2s2;           //xy=183,309
