@@ -40,7 +40,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=510,293
 
 
 //Some effects require memory to be allocated outside of the AudioMemory() function/
-#define DELAY_SIZE 10000  // At 44.1 kHz sample rate every 1000 integers is 22.6 miliseconds
+#define DELAY_SIZE 10000  // At 44.1 kHz sample rate every 1000 integers is 22.6 milliseconds
 int16_t tape_delay_bank[DELAY_SIZE];
 
 int pot[5];
@@ -70,7 +70,7 @@ void setup() {
   sgtl5000_1.lineInLevel(12); //5 is default for line level
 
 
-  //If you want to use a microhpne instead use these line. You can't use both at once
+  //If you want to use a microphone instead use these line. You can't use both at once
   //sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   //sgtl5000_1.micGain(20); //number is from 0-63 dB of gain. Usually this gets set pretty high
 
@@ -80,9 +80,9 @@ void setup() {
 
   //begin(bank to use, max size of bank, length of delay,rate reduction,interpolation)
   // delay time is 0 for longest delay, DELAY_SIZE-1 for shortest
-  // redux is a way to make the delay longer while sacrificing sample rate. takes whole nuimbers
-  // 0 is no reduction. 1 doubles the lenght while halving the sample rate, so 22kHz, 2 is 11kHz
-  // interpolation takes whole numbers and is how fast the tape will get to the desired loation. 0 is as fast as possible, 1 is a little slower
+  // redux is a way to make the delay longer while sacrificing sample rate. takes whole numbers
+  // 0 is no reduction. 1 doubles the length while halving the sample rate, so 22kHz, 2 is 11kHz
+  // interpolation takes whole numbers and is how fast the tape will get to the desired location. 0 is as fast as possible, 1 is a little slower
   tapeDelay1.begin(tape_delay_bank, DELAY_SIZE, 0, 1, 4);
 
   // begin(volume from 0.0-1.0 , frequency , shape of oscillator)

@@ -1,5 +1,5 @@
 /*
-  Read arditrary arry from sd
+  Read arbitrary array from sd
   press the button to load the sample
 */
 
@@ -29,7 +29,7 @@ char file_name[] = "B.TXT"; //name for the file
 
 uint32_t  cu, cm, du, prev[8], SDloc, array_begin, array_len, array_jump;
 int jump, interpolate;
-short arb_array[257]; //short is jsut another type audio uses. Same as int really
+short arb_array[257]; //short is just another type audio uses. Necessary for some arrays
 
 void setup() {
 
@@ -60,7 +60,7 @@ void setup() {
     delay(3000);
   }
 
-  //if you want to laod the file with random data to test change this to 1
+  //if you want to load the file with random data to test change this to 1
   byte test = 0;
   if (test == 1) {
     file.close();
@@ -84,7 +84,7 @@ void loop() {
   cm = millis();
   prev_button1 = button1;
   button1 = digitalRead(8);
-  //asuming there's alreay a pile of data on the card
+  //assuming there's already a pile of data on the card
 
   if (prev_button1 == 1 && button1 == 0) {
 

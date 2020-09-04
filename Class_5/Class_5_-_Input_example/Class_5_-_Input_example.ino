@@ -54,7 +54,7 @@ void setup() {
   sgtl5000_1.lineInLevel(12); //5 is default for line level
 
 
-  //If you want to use a microhpne instead use these line. You can't use both at once
+  //If you want to use a microphone instead use these line. You can't use both at once
   //sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   //sgtl5000_1.micGain(20); //number is from 0-63 dB of gain. Usually this gets set pretty high
   

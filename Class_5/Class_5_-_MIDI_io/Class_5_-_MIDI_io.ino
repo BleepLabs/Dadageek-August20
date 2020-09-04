@@ -1,7 +1,7 @@
 /*
   USB Midi control
-  The teensy must be set to MIDI in Tools>USB type>Serial+MIDI
-  Using regual DIN MIDI is very simialr but you need some additioanl hardware https://www.pjrc.com/teensy/td_libs_MIDI.html
+  The Teensy must be set to MIDI in Tools>USB type>Serial+MIDI
+  Using regular DIN MIDI is very similar but you need some additional hardware https://www.pjrc.com/teensy/td_libs_MIDI.html
 
 */
 #include <Audio.h>
@@ -43,9 +43,9 @@ const float midi_frequencies[108] = {16.3516, 17.32391673, 18.35405043, 19.44543
 // if the file to be included is in the same directory as the main .ino, use " ". Above we see <> this is for files in other directories.
 
 
-#define CHORUS_LEN 20000  // At 44.1 kHz sample rate every 1000 integers is 22.6 miliseconds
-// Chorus doesnt use the audioMemory() function. Instead you make an array for it
-short chorus_bank[CHORUS_LEN]; //short is a specail type similat to int and must be used for some audio functions for no good reason
+#define CHORUS_LEN 20000  // At 44.1 kHz sample rate every 1000 integers is 22.6 milliseconds
+// Chorus doesn't use the audioMemory() function. Instead you make an array for it
+short chorus_bank[CHORUS_LEN]; //short is a special type similar to int and must be used for some audio functions for no good reason
 
 //Then we have our variable declarations like before
 unsigned long cm;
@@ -105,9 +105,9 @@ void setup() {
 
   amp1.gain(1); ///final volume
 
-  //Chorus is the kind of effect you jsut setup then control the wet/dry of
-  // You can cahnge the number of voices, though.
-  //begin(array to use, size of array, numer of voices)
+  //Chorus is the kind of effect you just setup then control the wet/dry of
+  // You can change the number of voices, though.
+  //begin(array to use, size of array, number of voices)
   chorus1.begin(chorus_bank, CHORUS_LEN, 3);
 
   //Then we do the stuff we've done before.
@@ -120,7 +120,7 @@ void setup() {
 void loop() {
   cm = millis();
   old_note[channel] = new_note[channel];
-  //Alwasy do this in the bottom of the loop, not in a timing if
+  //Always do this in the bottom of the loop, not in a timing if
   if (usbMIDI.read()) { // Is there a MIDI message incoming ?
     type = usbMIDI.getType();
     switch (type) {  //switch is very similar to if and is used when there are several specific valuse to compare the input to
@@ -128,14 +128,14 @@ void loop() {
         note_reading = usbMIDI.getData1(); //note number
         velocity = usbMIDI.getData2(); //amplitude of note
         channel = usbMIDI.getChannel(); //MIDI channel of note
-        if (velocity > 0) {  //Some systems send note off as note on 0 Vlocity
+        if (velocity > 0) {  //Some systems send note off as note on 0 Velocity
           new_note[channel] = note_reading;
           if (midi_print == 1) Serial.println(String("Note On:  ch=") + channel + ", note=" + note_reading + ", velocity=" + velocity); //fancy way of printing lots of info
         } else {
           new_note[channel] = 0;
           if (midi_print == 1) Serial.println(String("Note Off VEL: ch=") + channel + ", note=" + note_reading);
         }
-        break; //this caase is done
+        break; //this case is done
       case midi::NoteOff:
         note_reading = usbMIDI.getData1();
         velocity = usbMIDI.getData2();
@@ -149,11 +149,11 @@ void loop() {
         channel = usbMIDI.getChannel();
         if (midi_print == 1) Serial.println(String("CC, num=") + cc_num + ", val= " + cc_val + " ch=" + channel);
         break;
-      default: //none of the others happend so do this one
+      default: //none of the others happened so do this one
         d1 = usbMIDI.getData1();
         d2 = usbMIDI.getData2();
-        //There are lots of MIDI sync mesages that you might not want to see
-        // uncomment this to get the firehose
+        //There are lots of MIDI sync messages that you might not want to see
+        // uncomment this to get the firehouse
         //Serial.println(String("Message, type=") + type + ", data = " + d1 + " " + d2);
     }
   }
@@ -169,8 +169,8 @@ void loop() {
   }
 
   if (cc_num == 24) {
-    ch_wet = (cc_val / 127.0); //MIDI values are 7bit 0-127
-    ch_dry = 1.0 - ch_wet; //flip it aroudn the easy way
+    ch_wet = (cc_val / 127.0); //MIDI values are 7 bit 0-127
+    ch_dry = 1.0 - ch_wet; //flip it around the easy way
     mixer2.gain(0, ch_dry); //dry
     mixer2.gain(1, ch_wet); //wet from chorus
   }
@@ -197,13 +197,13 @@ void loop() {
     pot[0] = smooth(0, 15, analogRead(A1) / 32) ; //midi is only 0-127
     if (prev_pot[0] != pot[0] ) {
       cc_send_val = pot[0];
-      //(contol number, value, channel
+      //(control number, value, channel
       usbMIDI.sendControlChange(30, cc_send_val, channel);
     }
 
   }
 
-  if (cm - prev[0] > 500 && 1 == 1) { //cahnge it to 1==1 for it to print
+  if (cm - prev[0] > 500 && 1 == 1) { //change it to 1==1 for it to print
     prev[0] = cm;
 
     //Here we print out the usage of the audio library
