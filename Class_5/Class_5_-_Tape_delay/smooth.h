@@ -4,8 +4,8 @@
 // This array has a new "raw_in" value added to it each time "smooth" is called and an old value is removed
 // It throws out the top and bottom 15% of readings and averages the rest
 
-#define maxarrays 3 //max number of different variables to smooth
-#define maxsamples 99 //max number of points to sample and 
+#define maxarrays 6 //max number of different variables to smooth
+#define maxsamples 51 //max number of points to sample and 
 //reduce these numbers to save RAM
 
 unsigned int smoothArray[maxarrays][maxsamples];

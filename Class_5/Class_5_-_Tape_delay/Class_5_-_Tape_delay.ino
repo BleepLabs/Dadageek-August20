@@ -58,7 +58,7 @@ void setup() {
   // The audio library uses blocks of a set size so this is not a percentage or kilobytes, just a kind of arbitrary number.
   // On our Teensy 3.2 we can go up to about 200 but that won't leave any RAM for anyone else.
   // It's usually the delay and reverb that hog it.
-  AudioMemory(10);
+  AudioMemory(20);
 
   //info for all of these "sgtl5000" functions are in the tool here https://www.pjrc.com/teensy/gui/?info=AudioControlSGTL5000
   sgtl5000_1.enable(); //Turn the adapter board on
