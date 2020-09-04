@@ -130,7 +130,7 @@ void loop() {
   if (cm - prev[1] > 5) {
     prev[1] = cm;
     sine_fm1.frequency(pot[0] / 4.0);
-    //amp2.gain(pot[2] / 4095.0); //output volume
+    amp2.gain(pot[2] / 4095.0); //output volume
     //amp1.gain(pot[1] / 1000.0); //amount the incoming audio is FMing the oscillator
     mixer1.gain(3, pot[2] / 4095.0); // feedback
     tapeDelay1.length((pot[1] / 4095.0) * DELAY_SIZE);
