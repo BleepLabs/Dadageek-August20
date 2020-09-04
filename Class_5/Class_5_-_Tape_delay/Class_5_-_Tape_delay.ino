@@ -114,6 +114,7 @@ void loop() {
 
   if (prev_button1 == 1 && button1 == 0) {
   }
+  
   if (prev_button1 == 0 && button1 == 1) {
   }
 
@@ -122,6 +123,8 @@ void loop() {
   // if we do this in the bottom of the loop, as in not in a timing if, it will respond much more quickly
   pot[0] = smooth(0, 35, analogRead(A1));
   pot[1] = smooth(1, 35, analogRead(A2));
+  pot[2] = smooth(2, 35, analogRead(A3));
+  pot[2] = smooth(2, 35, analogRead(A4));
   pot[2] = smooth(2, 35, analogRead(A3));
 
   if (cm - prev[1] > 5) {
