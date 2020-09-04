@@ -121,11 +121,11 @@ void loop() {
 
   //smooth(channel, number of readings to average, input)
   // if we do this in the bottom of the loop, as in not in a timing if, it will respond much more quickly
-  pot[0] = smooth(0, 35, analogRead(A1));
-  pot[1] = smooth(1, 35, analogRead(A2));
-  pot[2] = smooth(2, 35, analogRead(A3));
-  pot[2] = smooth(3, 35, analogRead(A4));
-  pot[2] = smooth(4, 35, analogRead(A3));
+  pot[0] = smooth(0, 35, analogRead(A0));
+  pot[1] = smooth(1, 35, analogRead(A1));
+  pot[2] = smooth(2, 35, analogRead(A2));
+  pot[3] = smooth(3, 35, analogRead(A3));
+  pot[4] = smooth(4, 35, analogRead(A6));
 
   if (cm - prev[1] > 5) {
     prev[1] = cm;
