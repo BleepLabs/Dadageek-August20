@@ -6,7 +6,6 @@
 
 #include "effect_tape_delay.h" // this needs to be before the other audio code 
 
-
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -14,28 +13,34 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioAmplifier           amp1;           //xy=124,393
-AudioInputI2S            i2s2;           //xy=183,309
-AudioSynthWaveformSineModulated sine_fm1;       //xy=207,473
-AudioEffectMultiply      multiply1;      //xy=328,389
-AudioEffectTapeDelay      tapeDelay1;      //xy=521,472
-AudioMixer4              mixer1;         //xy=523,395
-AudioAmplifier           amp2;           //xy=697,466
-AudioOutputI2S           i2s1;           //xy=841,468
+AudioAmplifier           amp1;           //xy=111.00568389892578,246.99998474121094
+AudioInputI2S            i2s2;           //xy=158.00568771362305,117.99999809265137
+AudioSynthWaveformSineModulated sine_fm1;       //xy=234.00571060180664,320.9999599456787
+AudioEffectMultiply      multiply1;      //xy=300.0056838989258,240.99999237060547
+AudioAnalyzePeak         peak1;          //xy=308.00567626953125,91.00568199157715
+AudioMixer4              mixer1;         //xy=495.005672454834,221.99999237060547
+AudioEffectTapeDelay      tapeDelay1;     //xy=521.0055770874023,367.9999027252197
+AudioMixer4              mixer2;         //xy=699.0056838989258,237.00565910339355
+AudioAmplifier           amp2;           //xy=706.0056419372559,325.0056686401367
+AudioOutputI2S           i2s1;           //xy=855.0056686401367,326.999981880188
 AudioConnection          patchCord1(amp1, sine_fm1);
 AudioConnection          patchCord2(i2s2, 0, multiply1, 0);
 AudioConnection          patchCord3(i2s2, 0, mixer1, 2);
 AudioConnection          patchCord4(i2s2, 0, amp1, 0);
-AudioConnection          patchCord5(sine_fm1, 0, multiply1, 1);
-AudioConnection          patchCord6(sine_fm1, 0, mixer1, 1);
-AudioConnection          patchCord7(multiply1, 0, mixer1, 0);
-AudioConnection          patchCord8(tapeDelay1, amp2);
-AudioConnection          patchCord9(tapeDelay1, 0, mixer1, 3);
-AudioConnection          patchCord10(mixer1, tapeDelay1);
-AudioConnection          patchCord11(amp2, 0, i2s1, 0);
-AudioConnection          patchCord12(amp2, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=510,293
+AudioConnection          patchCord5(i2s2, 0, peak1, 0);
+AudioConnection          patchCord6(i2s2, 0, mixer2, 0);
+AudioConnection          patchCord7(sine_fm1, 0, multiply1, 1);
+AudioConnection          patchCord8(sine_fm1, 0, mixer1, 1);
+AudioConnection          patchCord9(multiply1, 0, mixer1, 0);
+AudioConnection          patchCord10(mixer1, 0, tapeDelay1, 0);
+AudioConnection          patchCord11(tapeDelay1, 0, mixer1, 3);
+AudioConnection          patchCord12(tapeDelay1, 0, mixer2, 1);
+AudioConnection          patchCord13(mixer2, amp2);
+AudioConnection          patchCord14(amp2, 0, i2s1, 0);
+AudioConnection          patchCord15(amp2, 0, i2s1, 1);
+AudioControlSGTL5000     sgtl5000_1;     //xy=502.00561904907227,137.9999942779541
 // GUItool: end automatically generated code
+
 
 
 
@@ -49,6 +54,7 @@ unsigned long prev[8];
 #define button1_pin 8
 #define button2_pin 12
 int button1, button2, prev_button1, prev_button2;
+float peaky;
 
 void setup() {
 
@@ -83,19 +89,22 @@ void setup() {
   // redux is a way to make the delay longer while sacrificing sample rate. takes whole numbers
   // 0 is no reduction. 1 doubles the length while halving the sample rate, so 22kHz, 2 is 11kHz
   // interpolation takes whole numbers and is how fast the tape will get to the desired location. 0 is as fast as possible, 1 is a little slower
-  tapeDelay1.begin(tape_delay_bank, DELAY_SIZE, 0, 1, 4);
+  tapeDelay1.begin(tape_delay_bank, DELAY_SIZE, 0, 0, 1);
 
   // begin(volume from 0.0-1.0 , frequency , shape of oscillator)
   // See the tool for more info https://www.pjrc.com/teensy/gui/?info=AudioSynthWaveform
   sine_fm1.amplitude(1);
   amp1.gain(.5);
-  amp2.gain(1);
+  //amp2.gain(1);
 
   // gain.(channel from 0 to 3, gain from 0.0 to a large number)
   mixer1.gain(0, 0);
   mixer1.gain(1, 0);
-  mixer1.gain(2, .7);
+  mixer1.gain(2, .9);
   mixer1.gain(3, 0);
+
+  mixer2.gain(0, .5);
+  mixer2.gain(1, .5);
 
   //Then we do the stuff we've done before.
   analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. This has no effect on the 16 bit in/out of the audio adapter
@@ -118,6 +127,9 @@ void loop() {
   if (prev_button1 == 0 && button1 == 1) {
   }
 
+if (peak1.available()==1){
+  peaky=peak1.read();
+}
 
   //smooth(channel, number of readings to average, input)
   // if we do this in the bottom of the loop, as in not in a timing if, it will respond much more quickly
@@ -133,7 +145,8 @@ void loop() {
     amp2.gain(pot[2] / 4095.0); //output volume
     //amp1.gain(pot[1] / 1000.0); //amount the incoming audio is FMing the oscillator
     mixer1.gain(3, pot[2] / 4095.0); // feedback
-    tapeDelay1.length((pot[1] / 4095.0) * DELAY_SIZE);
+    //tapeDelay1.length((pot[1] / 4095.0) * DELAY_SIZE);
+    tapeDelay1.length((peaky*(pot[1] / 4095.0)) * DELAY_SIZE);
   }
 
   if (cm - prev[0] > 500) {
