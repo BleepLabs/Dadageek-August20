@@ -2,8 +2,8 @@
   USB Midi control
   The Teensy must be set to MIDI in Tools>USB type>Serial+MIDI
   Using regular DIN MIDI is very similar but you need some additional hardware https://www.pjrc.com/teensy/td_libs_MIDI.html
-
 */
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -55,7 +55,7 @@ int type, note_reading, velocity, channel, d1, d2, cc_num, cc_val, cc_send_val;
 int new_note[8], old_note[8];
 int midi_print = 0;
 float ch_wet, ch_dry;
-int button1_pin = 8;
+int button1_pin = 10;
 int button1, prev_button1;
 int pot[6], prev_pot[6];
 
@@ -121,7 +121,7 @@ void loop() {
   cm = millis();
   old_note[channel] = new_note[channel];
   //Always do this in the bottom of the loop, not in a timing if
-  if (usbMIDI.read()) { // Is there a MIDI message incoming ?
+  if (usbMIDI.read()==1) { // Is there a MIDI message incoming ?
     type = usbMIDI.getType();
     switch (type) {  //switch is very similar to if and is used when there are several specific valuse to compare the input to
       case midi::NoteOn: //if type == noteon
@@ -168,6 +168,16 @@ void loop() {
     }
   }
 
+    if (old_note[2] != new_note[2]) {
+    if (new_note[2] > 0) {
+      envelope2.noteOn();
+      waveform2.frequency(midi_frequencies[new_note[2]]);
+    }
+    if (new_note[2] == 0) {
+      envelope2.noteOff();
+    }
+  }
+
   if (cc_num == 24) {
     ch_wet = (cc_val / 127.0); //MIDI values are 7 bit 0-127
     ch_dry = 1.0 - ch_wet; //flip it around the easy way
@@ -200,7 +210,6 @@ void loop() {
       //(control number, value, channel
       usbMIDI.sendControlChange(30, cc_send_val, channel);
     }
-
   }
 
   if (cm - prev[0] > 500 && 1 == 1) { //change it to 1==1 for it to print
