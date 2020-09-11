@@ -105,12 +105,12 @@ void setup() {
   analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. This has no effect on the 16 bit in/out of the audio adapter
   analogReadResolution(12); //AnalogReads will return 0-4095
   analogReadAveraging(64);
-  
+
   randomSeed(analogRead(A9)); //if we don't do this our "random" called later on will always provide the same results;
-  
+
   //fill the array with data
   for (int i; i < array_length; i++) {
-    pot_rec_array[i] = (i * random(20,75)) + 200; //use i to increment the potion and change the data put in the array
+    pot_rec_array[i] = (i * random(20, 75)) + 200; //use i to increment the potion and change the data put in the array
   }
 
   envelope1.noteOn(); //start with the envelope on
@@ -158,11 +158,15 @@ void loop() {
 
     if (prev_button_reading == 0 && button_reading == 1) {
       envelope1.noteOff();
+      analogWrite(5, 0); //(pin, value 0-4095)
     }
     if (prev_button_reading == 1 && button_reading == 0) {
       envelope1.noteOn();
+      analogWrite(5, 2000);//(pin, value 0-4095)
+
     }
     waveform1.frequency(pot_rec_array[array_loc]);
+    analogWrite(6, pot_rec_array[array_loc] * 4);
     byte printer = 1; //change this to anything else to turn off printing
     if (printer == 1) {
       Serial.print("step: ");
