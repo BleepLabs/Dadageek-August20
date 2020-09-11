@@ -162,7 +162,7 @@ void loop() {
     }
     if (prev_button_reading == 1 && button_reading == 0) {
       envelope1.noteOn();
-      analogWrite(5, 2000);//(pin, value 0-4095)
+      analogWrite(5, 3000);//(pin, value 0-4095)
 
     }
     waveform1.frequency(pot_rec_array[array_loc]);
