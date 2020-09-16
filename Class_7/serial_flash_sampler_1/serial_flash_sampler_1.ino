@@ -3,12 +3,14 @@
   Uses the s25fl127 chip soldered to the bottom of the audio adapter board
   https://www.mouser.com/ProductDetail/Cypress-Semiconductor/S25FL127SABMFI101?qs=yatApJqb7mSoDiG6v501Uw%3D%3D
 
-  The samples are stored in banks on the flash chip, all of the same calculated size. See "sfblocks" below
+  The samples are stored in banks on the flash chip, all of the same calculated size. 
+  See "sfblocks" below
+
   A bank must be erased before data can be put in it. This takes about 500 millis per block
-  Once a sample is recorded it's length nad starting location are stored in eeprom,
-  a special type of memory in the teesy that persists after the pwoer is turned off
-  On startup, the teensy checks this memory and remeberes the starts and lengths of all the samples
-  If you cange "sfblocks" or "number_of_banks" this data will make less sens and you'll play other sections of memory
+  Once a sample is recorded it's length and starting location are stored in eeprom,
+  a special type of memory in the Teensy that persists after the power is turned off
+  On startup, the Teensy checks this memory and remembers the starts and lengths of all the samples
+  If you change "sfblocks" or "number_of_banks" this data will make less sens and you'll play other sections of memory
 
   There is a slight buzzing sound while you're recording but it shouldn't be in the samples.
   Up to 3 or 4 samples can be played at once depending on the playback speed. 1.0 is regular speed, .5 is half, 2.0 is double. The faster the more taxing
@@ -17,13 +19,14 @@
   The bank they are all address is controlled by the pot.
   A second sampler is started but unused
 
-  The samplers really jsut play back sections of memory. You can have multiple ones lookign at the same part of memory ie the saem sample
+  The samplers really just play back sections of memory. You can have multiple ones looking
+   at the same part of memory ie the same sample
 
-  Since "AudioSampler" is not in the regualr library use "playSdWav" as it has the same outputs
+  Since "AudioSampler" is not in the regular library use "playSdWav" as it has the same outputs
   Then just "AudioPlaySdWav" with "AudioSampler" and "playSdWavX" with "samperX"
 
   queue_left and queue_right are AudioRecordQueue object and are what take the audio data
-   and get it into the sampler. Don't change thier names
+   and get it into the sampler. Don't change their names
 
   more sampler functions:
   sample_loop(0 or 1); Loop this sampler
@@ -104,7 +107,7 @@ int button2_pin = 1;
 int button3_pin = 2;
 
 //info on what bounce does here https://github.com/thomasfredericks/Bounce2#alternate-debounce-algorithms-for-advanced-users-and-specific-cases
-//fuctions https://github.com/thomasfredericks/Bounce2/wiki#methods
+//functions: https://github.com/thomasfredericks/Bounce2/wiki#methods
 #define BOUNCE_LOCK_OUT //this tells it what mode to be in. I think it's the better one for music
 Bounce button1 = Bounce(); //make a bounce object called button1
 Bounce button2 = Bounce();
@@ -128,7 +131,7 @@ void setup() {
   //pinMode(4, INPUT_PULLUP);
   //pinMode(10, INPUT_PULLUP);
 
-  //sometimes you'll get this error even though the chip is attached jsut fine. Jsut reset the device.
+  //sometimes you'll get this error even though the chip is attached just fine. Just reset the device if this happens
   //the delay() above is to try and mitigate this
   if (!SerialFlash.begin(FlashChipSelect)) {
     while (1) { //don't continue if the chip isn't there
@@ -160,11 +163,11 @@ void setup() {
 
   load_sample_locations(); //must be done before other sampler stuff. it gets the bankstart[n] samplelen[n] from eeprom
   //amplitude,frequency,start location,length
-  //jsut coply these and cahnge out the bankstart and samplelen array addressing number
+  //just copy these and change out the bankstart[n] and samplelen[n] array "n"
   sampler0.begin(1, 1.0, bankstart[0], samplelen[0]);
   sampler1.begin(1, 1.0, bankstart[1], samplelen[1]);
 
-  amp_in_left.gain(1);//can be used to amplify the incoming siganl before the sampler
+  amp_in_left.gain(1);//can be used to amplify the incoming signal before the sampler
   amp_in_right.gain(1);
 
   sampler_mixer_left.gain(0, 1);
@@ -236,8 +239,9 @@ void loop() {
   if (cm - prev[0] > 10) {
     prev[0] = cm;
     prev_bank_sel = bank_sel;
-    //this will not give yu a lot of the pot <1 ie palying back slower so the pot range is used
+    //this will not give you a lot of the pot <1 ie playing back slower so the pot range "if" is used
     //float freq = (analogRead(A1) / 4095.0) * 4.0;
+
     int raw_freg_pot = analogRead(A1);
     if (raw_freg_pot <= 2048) { //if the pot is on the left side
       freq[0] = raw_freg_pot / 2048.0;
@@ -247,7 +251,7 @@ void loop() {
     }
 
 
-    //it's easier to jsut use map() but this shows how you ahve to keep everyhting a flaow if you wanna do acurate division
+    //it's easier to just use map() but this shows how you have to keep everything a float if you wanna do accurate division
     //bank_sel = int((analogRead(A2) / 4095.0) * float(number_of_banks-1));
     bank_sel = map(analogRead(A2), 0, 4095, 0, number_of_banks - 1);
     sampler0.frequency(freq[0]);
