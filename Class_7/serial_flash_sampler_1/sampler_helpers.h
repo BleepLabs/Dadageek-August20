@@ -1,4 +1,10 @@
 
+
+//leave these two alone plz
+#define getsize AUDIO_BLOCK_SAMPLES*2
+uint32_t rec_size = (sfblocks * 0x10000);
+
+
 void save_sample_length(uint16_t slot, uint32_t to_save) {
   int16_t startee = slot * 4;
   EEPROM.write(startee, to_save >> 24);

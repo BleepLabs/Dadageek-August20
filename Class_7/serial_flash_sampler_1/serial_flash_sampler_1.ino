@@ -79,19 +79,15 @@ AudioConnection          patchCord14(final_mixer_left, 0, i2s2, 0);
 AudioControlSGTL5000     sgtl5000_1;
 // GUItool: end automatically generated code
 
-
-
 #define FlashChipSelect 6 //
 
 //each block is 256kilobyte
 //In 44.1kHz stereo that's just under 1.5 seconds
-//on the s25fl127 there are 64 blocks
-#define sfblocks 8
-#define number_of_banks 12 // 64/sfblocks
+//on the s25fl127 there are 64 blocks (fyi these arent the 8bit block from the datasheet these are 4x that to account for stero 16b audio)
+#define sfblocks 8 //about 12 seconds
 
-//leave these two alone plz
-#define getsize AUDIO_BLOCK_SAMPLES*2
-uint32_t rec_size = (sfblocks * 0x10000);
+// You could jsut put this equation there but you can't have a remainer 
+#define number_of_banks 12 // 64 / sfblocks 
 
 int16_t rec_target, foffset, mode_timer_latch, rec_mode, mode, prev_bank_sel;
 uint32_t bankstart[number_of_banks];
@@ -101,6 +97,7 @@ uint32_t sfaddress, address;
 uint32_t cm, prev[12], mode_cm, mode_timer;
 int bank_sel;
 float freq[4];
+
 //change the buttons to your pins
 int button1_pin = 0;
 int button2_pin = 1;
@@ -162,10 +159,9 @@ void setup() {
   sgtl5000_1.volume(0.25);
 
   load_sample_locations(); //must be done before other sampler stuff. it gets the bankstart[n] samplelen[n] from eeprom
-  //amplitude,frequency,start location,length
-  //just copy these and change out the bankstart[n] and samplelen[n] array "n"
-  sampler0.begin(1, 1.0, bankstart[0], samplelen[0]);
-  sampler1.begin(1, 1.0, bankstart[1], samplelen[1]);
+  //amplitude,frequency
+  sampler0.begin(1, 1.0);
+  sampler1.begin(1, 1.0);
 
   amp_in_left.gain(1);//can be used to amplify the incoming signal before the sampler
   amp_in_right.gain(1);
