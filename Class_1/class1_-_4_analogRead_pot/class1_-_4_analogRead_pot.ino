@@ -1,3 +1,5 @@
+//Use a potentiometer to control the rate of blinking
+
 int led1_pin =  10;  // The pin for LED1
 int led1_state = LOW;  // The state of LED1
 

@@ -1,3 +1,5 @@
+//Have the LED fade rather than just be on or off
+
 int led1_pin =  10;  // The pin for LED1
 int led1_state = 0;  // The state of LED1
 

@@ -1,3 +1,5 @@
+///Use a button to control what the LEDs are doing
+
 int led1_pin =  10;  // The pin for LED1
 int led1_state = LOW;  // The state of LED1
 
@@ -27,7 +29,8 @@ void loop()
 {
   current_time = millis();
 
-  button_state = digitalRead(button_pin); //if the button is not being pressed it will read HIGH. if it pressed it will read LOW
+  //if the button is not being pressed it will read "HIGH" aka 1. if it pressed it will read LOW
+  button_state = digitalRead(button_pin); 
 
   if (current_time - previous_time1 > interval1) {
     previous_time1 = current_time;

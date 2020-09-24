@@ -1,10 +1,10 @@
 //If we want a second LED we need to have separate variables for some things
 
 //Variables will not have anything inherently in common because of their names. We could name them anything.
-// The variable names are only there to help us. The computer gets rid of them when we compile and upload
+// The variable names are only there to help us. The computer gets rid of the names when we compile and upload
 
 int led1_pin =  10;  // The pin for LED1
-int led1_state = LOW;  // The state of LED1
+int led1_state = LOW;  // The state of LED1 LOW and 0 are synonymous
 
 int led2_pin =  9;   // The LED2 pin
 int led2_state = 0;  // The LED2 state LOW and 0 are synonymous
@@ -17,8 +17,6 @@ unsigned long current_time;  // We haven't set it equal to anything so it will d
 
 unsigned long interval1 = 1000;  //the interval that LED1 will change
 unsigned long interval2 = 333;  //the interval that LED2 will change
-
-int pot1_value; //store the reading from the potentiometer aka knob
 
 
 void setup() {
