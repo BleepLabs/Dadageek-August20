@@ -1,11 +1,14 @@
-//log and expo scaling with
+//logarithmic and exponential scaling with "fscale"
 
 int j;
 float scaledResult, curve_adjust;
 unsigned long cm, prev[4];
 
 void setup() {
-  Serial.begin(9600);
+  analogWriteResolution(12); //PWM and A14 DAC output will be 0-4095. This has no effect on the 16 bit in/out of the audio adapter
+  analogReadResolution(12); //AnalogReads will return 0-4095
+  analogReadAveraging(64);
+
 }
 
 void loop() {
@@ -15,35 +18,37 @@ void loop() {
   if (cm - prev[0] > 5) {
     prev[0] = cm;
     j++;
-    if (j > 200) {
+    if (j > 100) {
       j = 0;
     }
-    //fscale(input,input low,input high,output low,output high, curve)
-    //curve respons to -1.0 to 1.0
-    //necative curve gives exponential output, positve logarhytmic
-    //curve of 0 is linear
-    curve_adjust = fscale(analogRead(A0), 0, 1023, -1.0, 1.0, 0);
-    scaledResult = fscale( j, 0, 200, 0, 200, curve_adjust);
+    //fscale(input, input low, input high, output low, output high, curve)
+    //curve responds to -1.0 to 1.0
+    //negative curve gives exponential output, positive logarithmic
+    //curve = 0 is linear
+    curve_adjust = fscale(analogRead(A0), 0, 4095, -1.0, 1.0, 0); //pot is now -1.0 to 1.0
+    scaledResult = fscale( j, 0, 100, 0, 100, curve_adjust); //j steps through 0 to 100
 
-    //view in serail polotter to easily see the slope change
+    //view in serial plotter to easily see the slope change
+    Serial.print("curve_adjust"); //no pace here means it just prints the value at the top of the plotter instead of plotting it
     Serial.print(curve_adjust);
-    Serial.print("  ");
+    Serial.print(" "); // a space means seperate these valuse to get thier own lines on the graph
     Serial.print(j);
-    Serial.print("  ");
+    Serial.print(" ");
     Serial.println(scaledResult);
 
   }
 }
 
 
-// floating point scaling
-// woreks like map but allows for float resutls and applying a log or expo curve
-//if curve is 0, it retuns a linear scaling
-//less tah 0 and it's logarhyminc
-//greater than 0 and it's exopnetial
-///https://playground.arduino.cc/Main/Fscale/
-// there are more effeint ways of doing this but it works just fine for getting pots to other ranges.
+//floating point scaling
+// works like map but allows for float results and applying a log or expo curve
+// If curve is 0, it returns a linear scaling
+// less than 0 and it's logarithmic
+// greater than 0 and it's exponential
 
+// based on
+///https://playground.arduino.cc/Main/Fscale/
+// there are more efficient ways of doing this but it works just fine for getting pots to other ranges.
 
 float fscale(float inputValue,  float originalMin, float originalMax, float newBegin, float
              newEnd, float curve) {
@@ -56,15 +61,12 @@ float fscale(float inputValue,  float originalMin, float originalMax, float newB
   boolean invFlag = 0;
 
 
-  // condition curve parameter
-  // limit range
-
   if (curve > 1) curve = 1;
   if (curve < -1) curve = -1;
 
-  float curve_amount = 1.0; // increase this number to get steeper curves 
-  curve = (curve * curve_amount * -1.0) ; // - invert and scale - this seems more intuitive - postive numbers give more weight to high end on output
-  curve = pow(10, curve); // convert linear scale into lograthimic exponent for other pow function
+  float curve_amount = 1.0; // increase this number to get steeper curves
+  curve = (curve * curve_amount * -1.0) ; // - invert and scale - this seems more intuitive - positive numbers give more weight to high end on output
+  curve = pow(10, curve); // convert linear scale into logarithmic exponent for other pow function
 
 
   // Check for out of range inputValues
@@ -75,7 +77,7 @@ float fscale(float inputValue,  float originalMin, float originalMax, float newB
     inputValue = originalMax;
   }
 
-  // Zero Refference the values
+  // Zero reference the values
   OriginalRange = originalMax - originalMin;
 
   if (newEnd > newBegin) {
