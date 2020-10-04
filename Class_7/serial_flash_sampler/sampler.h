@@ -68,9 +68,12 @@ class AudioSampler :
       tone_amp = n * 32767.0;
     }
 
-    void begin(float t_amp, float t_freqn) {
+    void begin(float t_amp, float t_freq, uint32_t s_pos, uint32_t len) {
       amplitude(t_amp);
-      frequency(t_freqn);
+      frequency(t_freq);
+      sample_len = len;
+      start_pos = s_pos;
+      end_mod = len;
       mod_start_pos = 0;
       get = 0;
     }
