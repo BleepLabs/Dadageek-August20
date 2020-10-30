@@ -1,3 +1,6 @@
+/* 
+ *  tested on JM's hardware and works 10-16-20
+*/
 
 void save_sample_length(uint16_t slot, uint32_t to_save) {
   int16_t startee = slot * 4;
@@ -18,9 +21,19 @@ uint32_t recall_sample_length(uint16_t slot) {
 }
 
 void load_sample_locations() {
+    Serial.print("bank# :  bankstart[]  samplelen[] ");
+    Serial.println();
   for (byte i = 0; i < number_of_banks; i++) {
     bankstart[i] = (i * sfblocks * 0x10000 * 4);
     samplelen[i] = recall_sample_length(i);
+    if (samplelen[i]>=4294967294){
+      samplelen[i]=0;
+    }
+    Serial.print(i);
+    Serial.print(" : ");
+    Serial.print(bankstart[i]);
+    Serial.print(" ");
+    Serial.println(samplelen[i]);
   }
 }
 
@@ -33,6 +46,7 @@ void startRecording(byte sel) {
   Serial.println(address);
   queue_left.begin();
   queue_right.begin();
+
 
 }
 

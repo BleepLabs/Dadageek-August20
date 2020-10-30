@@ -33,11 +33,9 @@
 */
 
 //include these before the rest
-#include "sampler.h"
+#include "sampler2.h"
 #include <EEPROM.h>
-#include <SerialFlash.h>
 #include <Bounce2.h>
-
 ////////////////////////////////////////
 
 #include <Audio.h>
@@ -84,7 +82,7 @@ AudioControlSGTL5000     sgtl5000_1;
 //In 44.1kHz stereo that's just under 1.5 seconds
 //on the s25fl127 there are 64 blocks
 #define sfblocks 8
-#define number_of_banks 12 // 64/sfblocks
+#define number_of_banks 8 // 64/sfblocks
 
 //leave these two alone plz
 #define getsize AUDIO_BLOCK_SAMPLES*2
@@ -103,6 +101,9 @@ int button1_pin = 0;
 int button2_pin = 1;
 int button3_pin = 2;
 
+float vol;
+float vol_rec_mon;
+
 //info on what bounce does here https://github.com/thomasfredericks/Bounce2#alternate-debounce-algorithms-for-advanced-users-and-specific-cases
 //fuctions https://github.com/thomasfredericks/Bounce2/wiki#methods
 #define BOUNCE_LOCK_OUT //this tells it what mode to be in. I think it's the better one for music
@@ -111,7 +112,7 @@ Bounce button2 = Bounce();
 Bounce button3 = Bounce();
 
 //this must be included at the end of declarations I know its annoying
-#include "sampler_helpers.h"
+#include "sampler_helpers2.h"
 
 
 void setup() {
@@ -212,13 +213,13 @@ void loop() {
 
   if (button2.read() == 0) {
     continueRecording(); ///...then continue while the button is down...
-    final_mixer_left.gain(1, 1); //listen to the incoming audio
-    final_mixer_right.gain(1, 1);
+    //final_mixer_left.gain(1, 1); //listen to the incoming audio
+    //final_mixer_right.gain(1, 1);
   }
   if (button2.rose()) {
     stopRecording();//...then stop
-    final_mixer_left.gain(1, 0); //mute incoming audio
-    final_mixer_right.gain(1, 0);
+    //final_mixer_left.gain(1, 0); //mute incoming audio
+    //final_mixer_right.gain(1, 0);
   }
 
   if (button3.fell()) {
@@ -230,12 +231,21 @@ void loop() {
 
   if (button3.rose()) {
     //if you want the sample to only play when the button is down uncomment this
-    //sampler0.sample_stop();
+    // sampler0.sample_stop();
   }
 
   if (cm - prev[0] > 10) {
     prev[0] = cm;
     prev_bank_sel = bank_sel;
+
+    vol = analogRead(A3) / 4095.0;
+    vol_rec_mon = (analogRead(A6) / 4095.0);
+    final_mixer_left.gain(0, vol);
+    final_mixer_right.gain(0, vol);
+    final_mixer_left.gain(1, vol_rec_mon);
+    final_mixer_right.gain(1, vol_rec_mon);
+
+
     //this will not give yu a lot of the pot <1 ie palying back slower so the pot range is used
     //float freq = (analogRead(A1) / 4095.0) * 4.0;
     int raw_freg_pot = analogRead(A1);
@@ -259,7 +269,7 @@ void loop() {
   if (cm - prev[1] > 500) {
     prev[1] = cm;
     //Serial.println(freq[0]);
-    
+
     byte print_stats = 0;
     if (print_stats == 1) {
       Serial.print("proc: ");
