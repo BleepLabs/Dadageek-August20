@@ -1,6 +1,7 @@
-
-#include "AudioStream.h"
 #include "Arduino.h"
+#include "AudioStream.h"
+#include "arm_math.h"
+#include "spi_interrupt.h"
 
 class AudioEffectTapeDelay :
   public AudioStream

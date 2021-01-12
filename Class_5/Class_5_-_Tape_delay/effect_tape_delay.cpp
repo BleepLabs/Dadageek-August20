@@ -1,6 +1,7 @@
 
 #include "effect_tape_delay.h"
 #include "arm_math.h"
+#include "utility/dspinst.h"
 
 void AudioEffectTapeDelay::begin(short *delayline, uint32_t max_len, uint32_t dly_len, short redux, short lerp)
 {
